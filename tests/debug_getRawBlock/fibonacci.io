@@ -114,3 +114,24 @@ fibonacci fib := method(n,
 )
 
 fibonacci fib(10) println
+fibonacci := method(n,
+    memo := Map clone
+    memo atPut(0, 0)
+    memo atPut(1, 1)
+    
+    fib := method(k,
+        memo hasKey(k) ifFalse(
+            memo atPut(k, fib(k-1) + fib(k-2))
+        )
+        memo at(k)
+    )
+    
+    fib(n)
+)
+
+"Fibonacci sequence:" println
+for(i, 0, 10, 
+    fibonacci(i) print
+    " " print
+)
+"" println
