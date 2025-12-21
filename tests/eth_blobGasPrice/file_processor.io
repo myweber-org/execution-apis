@@ -50,3 +50,36 @@ fileSize := processor getFileSize(testPath)
 "File content: " println
 fileContent println
 ("File size: " .. fileSize .. " bytes") println
+FileProcessor := Object clone do(
+    read := method(path,
+        file := File with(path) openForReading
+        content := file readToEnd
+        file close
+        content
+    )
+    
+    write := method(path, content,
+        file := File with(path) openForUpdating truncateToSize(0)
+        file write(content)
+        file close
+        self
+    )
+    
+    append := method(path, content,
+        file := File with(path) openForAppending
+        file write(content)
+        file close
+        self
+    )
+    
+    exists := method(path,
+        File exists(path)
+    )
+    
+    size := method(path,
+        file := File with(path) openForReading
+        size := file size
+        file close
+        size
+    )
+)
