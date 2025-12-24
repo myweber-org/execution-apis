@@ -195,3 +195,25 @@ for(i, 0, 10,
     (fibonacci(i) .. " ") print
 )
 "" println
+fibonacci := method(n,
+    memo := Map with(
+        at(0, 0),
+        at(1, 1)
+    )
+    
+    compute := method(k,
+        memo hasKey(k) ifFalse(
+            memo atPut(k, compute(k-1) + compute(k-2))
+        )
+        memo at(k)
+    )
+    
+    compute(n)
+)
+
+"First 10 Fibonacci numbers:" println
+for(i, 0, 9,
+    fibonacci(i) print
+    " " print
+)
+"" println
