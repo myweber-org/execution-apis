@@ -46,3 +46,21 @@ converter := TemperatureConverter clone
 converter displayConversions(25)
 result := converter convert(100, "CtoF")
 writeln("100°C in Fahrenheit: ", result)
+Celsius := Object clone
+Celsius toFahrenheit := method((self * 9/5) + 32)
+Celsius toKelvin := method(self + 273.15)
+
+TemperatureConverter := Object clone
+TemperatureConverter convert := method(celsiusValue,
+    celsius := celsiusValue asNumber
+    if(celsius isNil, return "Invalid input")
+    
+    fahrenheit := Celsius clone setSlot("", celsius) toFahrenheit
+    kelvin := Celsius clone setSlot("", celsius) toKelvin
+    
+    return list(celsius, fahrenheit round(2), kelvin round(2))
+)
+
+// Example usage:
+// result := TemperatureConverter convert(25)
+// result println // Output: list(25, 77, 298.15)
