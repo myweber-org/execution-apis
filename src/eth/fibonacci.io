@@ -5,10 +5,12 @@ fibonacci := method(n,
     memo atPut(1, 1)
     
     fib := method(i,
-        memo hasKey(i) ifFalse(
-            memo atPut(i, fib(i-1) + fib(i-2))
+        if(memo hasKey(i),
+            memo at(i),
+            result := fib(i-1) + fib(i-2)
+            memo atPut(i, result)
+            result
         )
-        memo at(i)
     )
     
     fib(n)
