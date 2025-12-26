@@ -190,3 +190,44 @@ jsonString := "{\"name\": \"John\", \"age\": 30, \"hobbies\": [\"reading\", \"co
 parsed := JsonParser parse(jsonString)
 "Parsed object:\n" print
 JsonParser prettyPrint(parsed)
+JsonParser := Object clone do(
+    parse := method(jsonString,
+        try(
+            doString("(" .. jsonString .. ")")
+        ) catch(Exception,
+            Exception raise("Invalid JSON: " .. jsonString)
+        )
+    )
+    
+    stringify := method(obj, pretty := false,
+        if(pretty,
+            obj serialized
+        ,
+            obj asJson
+        )
+    )
+    
+    prettyPrint := method(obj,
+        obj serialized
+    )
+)
+
+JsonParserTest := Object clone do(
+    testParse := method(
+        json := JsonParser parse("{\"name\":\"Alice\",\"age\":30}")
+        json at("name") println
+        json at("age") println
+    )
+    
+    testStringify := method(
+        obj := Map clone
+        obj atPut("city", "New York")
+        obj atPut("population", 8000000)
+        JsonParser stringify(obj, true) println
+    )
+)
+
+if(isLaunchScript,
+    JsonParserTest testParse
+    JsonParserTest testStringify
+)
