@@ -46,3 +46,28 @@ FileProcessor := Object clone do(
         Map clone atPut("totalLines", lines) atPut("filteredLines", filtered)
     )
 )
+FileProcessor := Object clone do(
+    countLines := method(path,
+        file := File with(path) openForReading
+        lines := file readLines size
+        file close
+        lines
+    )
+
+    filterLines := method(path, pattern,
+        file := File with(path) openForReading
+        matchingLines := file readLines select(line, line contains(pattern))
+        file close
+        matchingLines
+    )
+
+    processFile := method(path, pattern,
+        linesCount := self countLines(path)
+        matchingLines := self filterLines(path, pattern)
+        Map with(
+            "totalLines", linesCount,
+            "matchingLines", matchingLines,
+            "matchCount", matchingLines size
+        )
+    )
+)
