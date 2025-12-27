@@ -1,26 +1,22 @@
 
-fibonacci := method(n,
-    cache := Map clone
-    cache atPut(0, 0)
-    cache atPut(1, 1)
+fib := Object clone
+fib memo := Map clone
+
+fib calculate := method(n,
+    if (n <= 1, return n)
+    if (fib memo hasKey(n), return fib memo at(n))
     
-    fib := method(i,
-        if(cache hasKey(i), return cache at(i))
-        result := fib(i-1) + fib(i-2)
-        cache atPut(i, result)
-        result
+    result := fib calculate(n - 1) + fib calculate(n - 2)
+    fib memo atPut(n, result)
+    result
+)
+
+fib printSequence := method(n,
+    for(i, 0, n,
+        fib calculate(i) print
+        if(i < n, ", " print)
     )
-    
-    fib(n)
+    "" println
 )
 
-"Fibonacci sequence:" println
-for(i, 0, 10, fibonacci(i) println)
-fib := method(n,
-    if(n <= 1, return n)
-    fib(n - 1) + fib(n - 2)
-)
-
-fib := fib memoized
-
-fib(10) println
+fib printSequence(10)
