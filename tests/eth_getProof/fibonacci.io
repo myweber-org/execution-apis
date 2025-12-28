@@ -53,3 +53,20 @@ fibonacci := method(n,
 )
 
 for(i, 0, 20, fibonacci(i) println)
+fibonacci := method(n,
+    memo := Map clone
+    memo atPut(0, 0)
+    memo atPut(1, 1)
+    
+    fib := method(x,
+        memo hasKey(x) ifFalse(
+            memo atPut(x, fib(x-1) + fib(x-2))
+        )
+        memo at(x)
+    )
+    
+    fib(n)
+)
+
+"Fibonacci sequence:" println
+for(i, 0, 10, fibonacci(i) println)
