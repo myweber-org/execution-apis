@@ -94,3 +94,17 @@ fib := method(n,
 for(i, 0, 10,
     (i .. ": " .. fib(i)) println
 )
+fibonacci := Object clone do(
+    cache := Map clone
+
+    compute := method(n,
+        if(cache hasKey(n), return cache at(n))
+        result := if(n <= 1, n, compute(n-1) + compute(n-2))
+        cache atPut(n, result)
+        result
+    )
+)
+
+fibonacci compute(10) println
+fibonacci compute(20) println
+fibonacci cache size println
