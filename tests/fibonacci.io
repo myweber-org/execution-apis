@@ -1,22 +1,18 @@
 
-fibonacci := method(n,
-    cache := Map clone
+fib := method(n,
+    cache := Map withDefault(0)
     cache atPut(0, 0)
     cache atPut(1, 1)
     
-    fib := method(i,
-        if(cache hasKey(i), return cache at(i))
-        result := fib(i-1) + fib(i-2)
-        cache atPut(i, result)
-        result
+    compute := method(i,
+        if(cache hasKey(i) not,
+            cache atPut(i, compute(i-1) + compute(i-2))
+        )
+        cache at(i)
     )
     
-    fib(n)
+    compute(n)
 )
 
-"First 10 Fibonacci numbers:" println
-for(i, 0, 9,
-    fibonacci(i) print
-    " " print
-)
-"" println
+"Fibonacci sequence:" println
+for(i, 0, 10, fib(i) println)
