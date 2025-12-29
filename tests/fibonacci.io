@@ -1,18 +1,21 @@
 
 fib := method(n,
-    cache := Map withDefault(0)
+    cache := Map clone
     cache atPut(0, 0)
     cache atPut(1, 1)
     
-    compute := method(i,
-        if(cache hasKey(i) not,
-            cache atPut(i, compute(i-1) + compute(i-2))
+    fibRec := method(n,
+        if(cache hasKey(n),
+            cache at(n),
+            result := fibRec(n-1) + fibRec(n-2)
+            cache atPut(n, result)
+            result
         )
-        cache at(i)
     )
     
-    compute(n)
+    fibRec(n)
 )
 
-"Fibonacci sequence:" println
-for(i, 0, 10, fib(i) println)
+fib(10) println
+fib(20) println
+fib(30) println
