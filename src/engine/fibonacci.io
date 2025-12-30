@@ -1,56 +1,19 @@
 
 fib := method(n,
-    memo := Map clone
-    memo atPut(0, 0)
-    memo atPut(1, 1)
+    cache := Map clone
+    cache atPut(0, 0)
+    cache atPut(1, 1)
     
-    fibRec := method(k,
-        if(memo hasKey(k), 
-            memo at(k),
-            result := fibRec(k-1) + fibRec(k-2)
-            memo atPut(k, result)
+    fibRecursive := method(n,
+        if(cache hasKey(n),
+            cache at(n),
+            result := fibRecursive(n-1) + fibRecursive(n-2)
+            cache atPut(n, result)
             result
         )
     )
     
-    fibRec(n)
+    fibRecursive(n)
 )
 
-"Fibonacci sequence from 0 to 10:" println
-for(i, 0, 10,
-    (i .. " -> " .. fib(i)) println
-)
-fib := method(n,
-    memo := Map clone
-    memo atPut(0, 0)
-    memo atPut(1, 1)
-    
-    fibRec := method(n,
-        if(memo hasKey(n),
-            memo at(n),
-            result := fibRec(n-1) + fibRec(n-2)
-            memo atPut(n, result)
-            result
-        )
-    )
-    
-    fibRec(n)
-)
-
-for(i, 0, 10, write(fib(i), " "))
-fib := method(n,
-    memo := Map clone
-    memo atPut(0, 0)
-    memo atPut(1, 1)
-    
-    fibRec := method(n,
-        if(memo hasKey(n), return memo at(n))
-        result := fibRec(n-1) + fibRec(n-2)
-        memo atPut(n, result)
-        result
-    )
-    
-    fibRec(n)
-)
-
-for(i, 0, 10, write(fib(i), " "))
+for(i, 0, 10, writeln("fib(", i, ") = ", fib(i)))
