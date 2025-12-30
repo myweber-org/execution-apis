@@ -5,20 +5,18 @@ fib := method(n,
     memo atPut(1, 1)
     
     fibHelper := method(n,
-        if(memo hasKey(n),
-            memo at(n),
-            result := fibHelper(n - 1) + fibHelper(n - 2)
-            memo atPut(n, result)
-            result
-        )
+        if(memo hasKey(n), return memo at(n))
+        result := fibHelper(n - 1) + fibHelper(n - 2)
+        memo atPut(n, result)
+        result
     )
     
     fibHelper(n)
 )
 
-"Fibonacci sequence first 10 terms:" println
+"First 10 Fibonacci numbers:" println
 for(i, 0, 9,
     fib(i) print
-    if(i < 9, ", " print)
+    " " print
 )
 "" println
