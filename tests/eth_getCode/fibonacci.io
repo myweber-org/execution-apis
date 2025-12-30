@@ -1,22 +1,19 @@
 
-fib := Object clone
-fib memo := Map clone
-
-fib generate := method(n,
-    if (n <= 1, return n)
-    if (fib memo hasKey(n), return fib memo at(n))
+fib := method(n,
+    memo := Map clone
+    memo atPut(0, 0)
+    memo atPut(1, 1)
     
-    result := fib generate(n - 1) + fib generate(n - 2)
-    fib memo atPut(n, result)
-    result
-)
-
-fib printSequence := method(count,
-    for (i, 0, count - 1,
-        fib generate(i) print
-        if (i < count - 1, ", " print)
+    fibRec := method(k,
+        if(memo hasKey(k),
+            memo at(k),
+            result := fibRec(k-1) + fibRec(k-2)
+            memo atPut(k, result)
+            result
+        )
     )
-    "" println
+    
+    fibRec(n)
 )
 
-fib printSequence(15)
+for(i, 0, 10, write(fib(i), " "))
