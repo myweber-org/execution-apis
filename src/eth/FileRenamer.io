@@ -38,3 +38,27 @@ if(isLaunchScript,
         writeln("Usage: io FileRenamer.io <file1> <file2> ...")
     )
 )
+FileRenamer := Object clone do(
+    renameFiles := method(path, prefix,
+        Directory with(path) fileNames foreach(oldName,
+            newName := prefix .. oldName
+            oldPath := path pathComponent(oldName)
+            newPath := path pathComponent(newName)
+            if(oldPath != newPath,
+                oldPath renameTo(newPath)
+                writeln("Renamed: ", oldName, " -> ", newName)
+            )
+        )
+    )
+)
+
+if(isLaunchScript,
+    if(System args size == 3,
+        FileRenamer renameFiles(
+            Path with(System args at(1)),
+            System args at(2)
+        )
+    ,
+        writeln("Usage: io FileRenamer.io <directory> <prefix>")
+    )
+)
