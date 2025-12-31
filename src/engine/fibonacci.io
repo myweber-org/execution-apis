@@ -1,17 +1,19 @@
 
 fib := method(n,
-    memo := Map clone
-    memo atPut(0, 0)
-    memo atPut(1, 1)
+    cache := Map withDefault(0)
+    cache atPut(0, 0)
+    cache atPut(1, 1)
     
-    fibHelper := method(n,
-        if(memo hasKey(n), return memo at(n))
-        result := fibHelper(n-1) + fibHelper(n-2)
-        memo atPut(n, result)
-        result
+    fibRecursive := method(k,
+        if(cache hasKey(k) not,
+            cache atPut(k, fibRecursive(k-1) + fibRecursive(k-2))
+        )
+        cache at(k)
     )
     
-    fibHelper(n)
+    fibRecursive(n)
 )
 
-for(i, 0, 10, write("fib(", i, ") = ", fib(i), "\n"))
+0 to(10) foreach(i,
+    fib(i) println
+)
