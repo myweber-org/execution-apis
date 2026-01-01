@@ -6,7 +6,7 @@ fib := method(n,
     
     fibRecursive := method(n,
         if(memo hasKey(n), return memo at(n))
-        result := fibRecursive(n-1) + fibRecursive(n-2)
+        result := fibRecursive(n - 1) + fibRecursive(n - 2)
         memo atPut(n, result)
         result
     )
