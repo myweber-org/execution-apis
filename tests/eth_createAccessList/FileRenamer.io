@@ -1,21 +1,25 @@
 
 FileRenamer := Object clone do(
-    renameFiles := method(path, prefix,
-        directory := Directory with(path)
-        directory files foreach(i, file,
-            oldName := file name
-            newName := prefix .. oldName
-            newPath := path .. "/" .. newName
-            file moveTo(newPath)
-            writeln("Renamed: ", oldName, " -> ", newName)
+    renameWithTimestamp := method(path,
+        if(File with(path) exists not, return "File not found")
+        
+        originalFile := File with(path)
+        timestamp := Date clone now asNumber asString
+        newPath := path pathComponent splitAt(-1) appendSeq(list(timestamp, path pathComponent last)) join("_")
+        
+        originalFile setPath(newPath)
+        if(originalFile exists, return "Renamed to: #{newPath}" interpolate, return "Rename failed")
+    )
+    
+    batchRename := method(directoryPath, extension,
+        Directory with(directoryPath) files select(f, f path endsWith(extension)) foreach(f,
+            renameWithTimestamp(f path) println
         )
     )
 )
 
 if(isLaunchScript,
-    if(System args size >= 3,
-        FileRenamer renameFiles(System args at(1), System args at(2))
-    ,
-        writeln("Usage: io FileRenamer.io <directory_path> <prefix>")
+    if(System args size >= 2,
+        FileRenamer renameWithTimestamp(System args at(1)) println
     )
 )
