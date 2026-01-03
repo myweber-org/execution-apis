@@ -1,14 +1,14 @@
 
 fibonacci := method(n,
-    cache := Map clone
-    cache atPut(0, 0)
-    cache atPut(1, 1)
+    memo := Map clone
+    memo atPut(0, 0)
+    memo atPut(1, 1)
     
-    fib := method(i,
-        if(cache hasKey(i),
-            cache at(i),
-            result := fib(i-1) + fib(i-2)
-            cache atPut(i, result)
+    fib := method(x,
+        if(memo hasKey(x),
+            memo at(x),
+            result := fib(x-1) + fib(x-2)
+            memo atPut(x, result)
             result
         )
     )
