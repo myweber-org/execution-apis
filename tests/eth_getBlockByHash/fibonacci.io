@@ -1,17 +1,20 @@
 
-fibonacci := Object clone do(
+fibonacci := method(n,
     memo := Map clone
-
-    fib := method(n,
+    memo atPut(0, 0)
+    memo atPut(1, 1)
+    
+    fib := block(n,
         if(memo hasKey(n),
             memo at(n),
-            if(n <= 1,
-                memo atPut(n, n),
-                memo atPut(n, fib(n-1) + fib(n-2))
-            )
+            result := fib call(n - 1) + fib call(n - 2)
+            memo atPut(n, result)
+            result
         )
-        memo at(n)
     )
+    
+    fib call(n)
 )
 
-for(i, 0, 10, fibonacci fib(i) println)
+"Fibonacci sequence:" println
+for(i, 0, 10, fibonacci(i) println)
