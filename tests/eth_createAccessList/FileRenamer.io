@@ -1,25 +1,40 @@
 
 FileRenamer := Object clone do(
     renameWithTimestamp := method(path,
-        if(File with(path) exists not, return "File not found")
-        
-        originalFile := File with(path)
-        timestamp := Date clone now asNumber asString
-        newPath := path pathComponent splitAt(-1) appendSeq(list(timestamp, path pathComponent last)) join("_")
-        
-        originalFile setPath(newPath)
-        if(originalFile exists, return "Renamed to: #{newPath}" interpolate, return "Rename failed")
+        if(File with(path) exists,
+            timestamp := Date clone now asString("%Y%m%d_%H%M%S")
+            extension := if(path containsSeq("."), "." .. path split(".") last, "")
+            baseName := if(extension size > 0, path exSlice(0, -(extension size)), path)
+            newPath := timestamp .. "_" .. baseName .. extension
+            
+            File with(path) renameTo(newPath)
+            writeln("Renamed: ", path, " -> ", newPath)
+            return newPath
+        ,
+            writeln("File not found: ", path)
+            return nil
+        )
     )
     
-    batchRename := method(directoryPath, extension,
-        Directory with(directoryPath) files select(f, f path endsWith(extension)) foreach(f,
-            renameWithTimestamp(f path) println
+    processDirectory := method(dirPath,
+        Directory with(dirPath) files foreach(file,
+            if(file isDirectory not,
+                renameWithTimestamp(file path)
+            )
         )
     )
 )
 
 if(isLaunchScript,
-    if(System args size >= 2,
-        FileRenamer renameWithTimestamp(System args at(1)) println
+    args := System args
+    if(args size > 1,
+        path := args at(1)
+        if(Directory with(path) exists,
+            FileRenamer processDirectory(path)
+        ,
+            FileRenamer renameWithTimestamp(path)
+        )
+    ,
+        writeln("Usage: io FileRenamer.io <file_or_directory>")
     )
 )
