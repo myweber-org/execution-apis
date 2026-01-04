@@ -17,9 +17,5 @@ fibonacci := method(n,
 "Fibonacci of 10: " print
 fibonacci(10) println
 
-"First 15 fibonacci numbers:" println
-for(i, 0, 14,
-    fibonacci(i) print
-    if(i < 14, ", " print)
-)
-"" println
+"Fibonacci of 20: " print
+fibonacci(20) println
