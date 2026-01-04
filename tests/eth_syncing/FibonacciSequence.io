@@ -14,7 +14,6 @@ fib := method(n,
     fibRecursive(n)
 )
 
-// Test the implementation
 for(i, 0, 10, 
-    ("Fibonacci(" .. i .. ") = " .. fib(i)) println
+    fib(i) println
 )
