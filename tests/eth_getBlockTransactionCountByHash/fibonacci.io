@@ -1,19 +1,18 @@
 
-fib := method(n,
-    memo := Map clone
+fibonacci := method(n,
+    memo := Map withDefault(0)
     memo atPut(0, 0)
     memo atPut(1, 1)
     
-    fibRecursive := method(n,
-        if(memo hasKey(n),
-            memo at(n),
-            result := fibRecursive(n-1) + fibRecursive(n-2)
-            memo atPut(n, result)
-            result
+    fib := method(x,
+        if(memo at(x) == 0 and x > 1,
+            memo atPut(x, fib(x-1) + fib(x-2))
         )
+        memo at(x)
     )
     
-    fibRecursive(n)
+    fib(n)
 )
 
-for(i, 0, 10, write("fib(", i, ") = ", fib(i), "\n"))
+"Fibonacci sequence:" println
+for(i, 0, 10, fibonacci(i) println)
