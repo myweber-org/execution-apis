@@ -46,4 +46,55 @@ writeln("Matrix B:")
 b print
 writeln("Result A * B:")
 c := a multiply(b)
+c printMatrix := Object clone
+Matrix dim := method(x, y,
+    self x := x
+    self y := y
+    self data := List clone setSize(y) mapInPlace(List clone setSize(x) mapInPlace(0))
+    self
+)
+
+Matrix set := method(x, y, value,
+    self data at(y) atPut(x, value)
+    self
+)
+
+Matrix get := method(x, y,
+    self data at(y) at(x)
+)
+
+Matrix print := method(
+    self data foreach(row,
+        row foreach(v, v asString alignLeft(4, " ") print)
+        "" println
+    )
+)
+
+Matrix multiply := method(other,
+    if(self y != other x, Exception raise("Incompatible dimensions"))
+    result := Matrix clone dim(self x, other y)
+    for(i, 0, self x - 1,
+        for(j, 0, other y - 1,
+            sum := 0
+            for(k, 0, self y - 1,
+                sum = sum + (self get(i, k) * other get(k, j))
+            )
+            result set(i, j, sum)
+        )
+    )
+    result
+)
+
+a := Matrix clone dim(2, 3)
+a set(0,0,1) set(1,0,2) set(0,1,3) set(1,1,4) set(0,2,5) set(1,2,6)
+
+b := Matrix clone dim(3, 2)
+b set(0,0,7) set(1,0,8) set(2,0,9) set(0,1,10) set(1,1,11) set(2,1,12)
+
+"Matrix A:" println
+a print
+"Matrix B:" println
+b print
+"Result of A * B:" println
+c := a multiply(b)
 c print
