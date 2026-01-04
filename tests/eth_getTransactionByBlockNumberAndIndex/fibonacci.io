@@ -1,22 +1,12 @@
 
-fib := method(n,
-    memo := Map clone
-    memo atPut(0, 0)
-    memo atPut(1, 1)
-    
-    fibRecursive := method(n,
-        if(memo hasKey(n), return memo at(n))
-        result := fibRecursive(n-1) + fibRecursive(n-2)
-        memo atPut(n, result)
-        result
-    )
-    
-    fibRecursive(n)
+fibonacci := Object clone
+fibonacci memo := Map clone
+fibonacci fib := method(n,
+    if(n <= 1, return n)
+    if(self memo hasKey(n), return self memo at(n))
+    result := self fib(n-1) + self fib(n-2)
+    self memo atPut(n, result)
+    result
 )
 
-"First 10 Fibonacci numbers:" println
-for(i, 0, 9,
-    fib(i) print
-    " " print
-)
-"" println
+fibonacci fib(10) println
