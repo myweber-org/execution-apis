@@ -4,17 +4,14 @@ fib := method(n,
     memo atPut(0, 0)
     memo atPut(1, 1)
     
-    fibRec := block(n,
-        if(memo hasKey(n), return memo at(n))
-        result := fibRec call(n - 1) + fibRec call(n - 2)
-        memo atPut(n, result)
+    fibHelper := method(k,
+        if(memo hasKey(k), return memo at(k))
+        result := fibHelper(k-1) + fibHelper(k-2)
+        memo atPut(k, result)
         result
     )
     
-    fibRec call(n)
+    fibHelper(n)
 )
 
-"First 10 Fibonacci numbers:" println
-for(i, 0, 9,
-    fib(i) println
-)
+for(i, 0, 10, fib(i) println)
