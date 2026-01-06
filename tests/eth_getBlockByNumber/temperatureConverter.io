@@ -6,19 +6,23 @@ Celsius toKelvin := method(self + 273.15)
 TemperatureConverter := Object clone
 TemperatureConverter convert := method(value, unit,
     if(unit == "C",
-        list("Fahrenheit" : value toFahrenheit, "Kelvin" : value toKelvin),
+        return list(value, value toFahrenheit, value toKelvin),
         if(unit == "F",
-            celsiusValue := (value - 32) * 5 / 9,
-            list("Celsius" : celsiusValue, "Kelvin" : celsiusValue toKelvin)
+            celsius := (value - 32) * 5 / 9,
+            return list(celsius, celsius toFahrenheit, celsius toKelvin)
         ),
         if(unit == "K",
-            celsiusValue := value - 273.15,
-            list("Celsius" : celsiusValue, "Fahrenheit" : celsiusValue toFahrenheit)
+            celsius := value - 273.15,
+            return list(celsius, celsius toFahrenheit, celsius toKelvin)
         )
     )
+    return "Invalid unit"
 )
 
 // Example usage
 converter := TemperatureConverter clone
 result := converter convert(100, "C")
 result println
+
+result2 := converter convert(212, "F")
+result2 println
