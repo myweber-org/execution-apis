@@ -11,27 +11,33 @@ Kelvin := Object clone
 Kelvin toCelsius := method(self - 273.15)
 Kelvin toFahrenheit := method((self - 273.15) * 9 / 5 + 32)
 
+TemperatureConverter := Object clone
+TemperatureConverter convert := method(value, fromUnit, toUnit,
+    unitMap := Map clone
+    unitMap atPut("C", Celsius)
+    unitMap atPut("F", Fahrenheit)
+    unitMap atPut("K", Kelvin)
+    
+    fromObj := unitMap at(fromUnit)
+    toObj := unitMap at(toUnit)
+    
+    if(fromObj and toObj,
+        if(fromUnit == "C",
+            if(toUnit == "F", return fromObj toFahrenheit(value))
+            if(toUnit == "K", return fromObj toKelvin(value))
+        )
+        if(fromUnit == "F",
+            if(toUnit == "C", return fromObj toCelsius(value))
+            if(toUnit == "K", return fromObj toKelvin(value))
+        )
+        if(fromUnit == "K",
+            if(toUnit == "C", return fromObj toCelsius(value))
+            if(toUnit == "F", return fromObj toFahrenheit(value))
+        )
+    )
+    return nil
+)
+
 // Example usage
-celsiusValue := 25
-fahrenheitValue := celsiusValue toFahrenheit
-kelvinValue := celsiusValue toKelvin
-
-("Celsius: " .. celsiusValue) println
-("Fahrenheit: " .. fahrenheitValue) println
-("Kelvin: " .. kelvinValue) println
-Celsius := Object clone
-Celsius toFahrenheit := method(self * 9 / 5 + 32)
-Celsius toKelvin := method(self + 273.15)
-
-Fahrenheit := Object clone
-Fahrenheit toCelsius := method((self - 32) * 5 / 9)
-Fahrenheit toKelvin := method(self toCelsius + 273.15)
-
-Kelvin := Object clone
-Kelvin toCelsius := method(self - 273.15)
-Kelvin toFahrenheit := method(self toCelsius * 9 / 5 + 32)
-
-// Example usage (commented out in actual utility)
-// 25 Celsius toFahrenheit println // 77
-// 100 Fahrenheit toCelsius println // 37.7778
-// 300 Kelvin toFahrenheit println // 80.33
+// result := TemperatureConverter convert(100, "C", "F")
+// result println // Should print 212
