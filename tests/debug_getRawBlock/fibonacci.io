@@ -1,37 +1,17 @@
 
-fib := method(n,
-    cache := Map clone
-    cache atPut(0, 0)
-    cache atPut(1, 1)
-    
-    fibRec := method(k,
-        if(cache hasKey(k), return cache at(k))
-        result := fibRec(k-1) + fibRec(k-2)
-        cache atPut(k, result)
-        result
-    )
-    
-    fibRec(n)
-)
-
-0 to(10) foreach(i,
-    fib(i) println
-)
-fib := method(n,
+fibonacci := method(n,
     memo := Map clone
     memo atPut(0, 0)
     memo atPut(1, 1)
     
-    fibRec := method(n,
-        if(memo hasKey(n),
-            memo at(n),
-            result := fibRec(n-1) + fibRec(n-2)
-            memo atPut(n, result)
-            result
+    fib := method(x,
+        memo at(x) ifNil(
+            memo atPut(x, fib(x-1) + fib(x-2))
         )
+        memo at(x)
     )
     
-    fibRec(n)
+    fib(n)
 )
 
-for(i, 0, 10, write(fib(i), " "))
+for(i, 0, 10, fibonacci(i) println)
