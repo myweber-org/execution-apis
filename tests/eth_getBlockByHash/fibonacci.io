@@ -16,8 +16,5 @@ fib := method(n,
     fibRec(n)
 )
 
-"Fibonacci numbers:" println
-for(i, 0, 10,
-    (fib(i) asString .. " ") print
-)
-"" println
+"Fibonacci of 10: " print
+fib(10) println
