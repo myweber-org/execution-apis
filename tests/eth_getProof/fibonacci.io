@@ -1,22 +1,18 @@
 
-fib := Object clone
-fib memo := Map clone
-
-fib generate := method(n,
-    if (n <= 1, return n)
-    if (fib memo hasKey(n), return fib memo at(n))
+fibonacci := method(n,
+    memo := Map clone
+    memo atPut(0, 0)
+    memo atPut(1, 1)
     
-    result := fib generate(n - 1) + fib generate(n - 2)
-    fib memo atPut(n, result)
-    result
-)
-
-fib printSequence := method(count,
-    for (i, 0, count - 1,
-        fib generate(i) print
-        if (i < count - 1, ", " print)
+    fib := method(i,
+        memo at(i) ifNil(
+            memo atPut(i, fib(i-1) + fib(i-2))
+        )
+        memo at(i)
     )
-    "" println
+    
+    fib(n)
 )
 
-fib printSequence(15)
+"Fibonacci of 10: " print
+fibonacci(10) println
