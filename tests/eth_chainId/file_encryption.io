@@ -65,3 +65,51 @@ if(isLaunchScript,
         "Usage: io file_encryption.io <encrypt|decrypt> <input> <output> <password>" println
     )
 )
+OpenSSL do(
+    // Generate random IV
+    iv := method(
+        OpenSSL Random bytes(16)
+    )
+
+    // Pad data to block size
+    pad := method(data,
+        blockSize := 16
+        padding := blockSize - (data size % blockSize)
+        data .. (String with(padding asCharacter) repeated(padding))
+    )
+
+    // Unpad data after decryption
+    unpad := method(data,
+        padding := data at(data size - 1)
+        data exSlice(0, data size - padding)
+    )
+
+    // Encrypt with AES-256-CBC
+    encrypt := method(key, plaintext,
+        cipher := OpenSSL Cipher with("aes-256-cbc")
+        ivBytes := iv
+        cipher encryptInit(key, ivBytes)
+        padded := pad(plaintext)
+        encrypted := cipher update(padded) .. cipher final
+        ivBytes .. encrypted
+    )
+
+    // Decrypt AES-256-CBC
+    decrypt := method(key, ciphertext,
+        cipher := OpenSSL Cipher with("aes-256-cbc")
+        ivBytes := ciphertext exSlice(0, 16)
+        data := ciphertext exSlice(16)
+        cipher decryptInit(key, ivBytes)
+        decrypted := cipher update(data) .. cipher final
+        unpad(decrypted)
+    )
+)
+
+// Example usage (commented out in actual utility)
+/*
+key := "32_byte_key_for_aes_256_cbc_encryption"
+data := "Sensitive information to protect"
+encrypted := OpenSSL encrypt(key, data)
+decrypted := OpenSSL decrypt(key, encrypted)
+decrypted println // Should match original data
+*/
