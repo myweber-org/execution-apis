@@ -4,75 +4,21 @@ fib := method(n,
     memo atPut(0, 0)
     memo atPut(1, 1)
     
-    fibRec := method(k,
-        if(memo hasKey(k), return memo at(k))
-        result := fibRec(k-1) + fibRec(k-2)
-        memo atPut(k, result)
-        result
-    )
-    
-    fibRec(n)
-)
-
-for(i, 0, 10, fib(i) println)
-fib := Object clone
-fib memo := Map clone
-fib at := method(n,
-    if (memo hasKey(n), return memo at(n))
-    if (n <= 1, return n)
-    result := self at(n - 1) + self at(n - 2)
-    memo atPut(n, result)
-    result
-)
-
-fib printSequence := method(n,
-    for(i, 0, n,
-        self at(i) print
-        if(i < n, ", " print)
-    )
-    "" println
-)
-
-fib printSequence(15)
-fib := method(n,
-    memo := Map clone
-    memo atPut(0, 0)
-    memo atPut(1, 1)
-    
-    fibRec := method(k,
-        if(memo hasKey(k),
-            memo at(k),
-            result := fibRec(k-1) + fibRec(k-2)
-            memo atPut(k, result)
-            result
-        )
-    )
-    
-    fibRec(n)
-)
-
-"Fibonacci sequence:" println
-for(i, 0, 10,
-    (fib(i)) println
-)
-fib := method(n,
-    memo := Map clone
-    memo atPut(0, 0)
-    memo atPut(1, 1)
-    
-    fibRecursive := method(n,
+    fibRec := method(n,
         if(memo hasKey(n),
             memo at(n),
-            result := fibRecursive(n-1) + fibRecursive(n-2)
+            result := fibRec(n - 1) + fibRec(n - 2)
             memo atPut(n, result)
             result
         )
     )
     
-    fibRecursive(n)
+    fibRec(n)
 )
 
-"Fibonacci sequence:" println
-for(i, 0, 10,
-    fib(i) println
+"First 10 Fibonacci numbers:" println
+for(i, 0, 9,
+    fib(i) print
+    " " print
 )
+"" println
