@@ -31,3 +31,28 @@ Kelvin toFahrenheit := method((self - 273.15) * 9 / 5 + 32)
 
 "300 Kelvin in Celsius: " print
 (300 Kelvin toCelsius) println
+Celsius := Object clone do(
+    toFahrenheit := method(self * 9 / 5 + 32)
+    toKelvin := method(self + 273.15)
+)
+
+Fahrenheit := Object clone do(
+    toCelsius := method((self - 32) * 5 / 9)
+    toKelvin := method((self - 32) * 5 / 9 + 273.15)
+)
+
+Kelvin := Object clone do(
+    toCelsius := method(self - 273.15)
+    toFahrenheit := method((self - 273.15) * 9 / 5 + 32)
+)
+
+// Example usage
+/*
+celsiusTemp := 100
+fahrenheitTemp := celsiusTemp Celsius toFahrenheit
+kelvinTemp := celsiusTemp Celsius toKelvin
+
+("Celsius: " .. celsiusTemp) println
+("Fahrenheit: " .. fahrenheitTemp) println
+("Kelvin: " .. kelvinTemp) println
+*/
