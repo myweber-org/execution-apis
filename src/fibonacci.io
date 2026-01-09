@@ -43,3 +43,8 @@ for(i, 0, 9,
     " " print
 )
 "" println
+fib := method(n,
+    if(n <= 1, n, fib(n - 1) + fib(n - 2))
+)
+
+fib(10) println
