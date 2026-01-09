@@ -1,17 +1,43 @@
 
-CelsiusToFahrenheit := method(celsius,
-    (celsius * 9/5) + 32
-)
+Celsius := Object clone
+Celsius toFahrenheit := method(self * 9 / 5 + 32)
+Celsius toKelvin := method(self + 273.15)
 
-FahrenheitToCelsius := method(fahrenheit,
-    (fahrenheit - 32) * 5/9
+Fahrenheit := Object clone
+Fahrenheit toCelsius := method((self - 32) * 5 / 9)
+Fahrenheit toKelvin := method((self - 32) * 5 / 9 + 273.15)
+
+Kelvin := Object clone
+Kelvin toCelsius := method(self - 273.15)
+Kelvin toFahrenheit := method((self - 273.15) * 9 / 5 + 32)
+
+TemperatureConverter := Object clone
+TemperatureConverter convert := method(value, fromUnit, toUnit,
+    unitMap := Map clone
+    unitMap atPut("C", Celsius)
+    unitMap atPut("F", Fahrenheit)
+    unitMap atPut("K", Kelvin)
+    
+    fromObj := unitMap at(fromUnit)
+    toObj := unitMap at(toUnit)
+    
+    if(fromObj and toObj,
+        if(fromUnit == "C",
+            if(toUnit == "F", return fromObj toFahrenheit(value))
+            if(toUnit == "K", return fromObj toKelvin(value))
+        )
+        if(fromUnit == "F",
+            if(toUnit == "C", return fromObj toCelsius(value))
+            if(toUnit == "K", return fromObj toKelvin(value))
+        )
+        if(fromUnit == "K",
+            if(toUnit == "C", return fromObj toCelsius(value))
+            if(toUnit == "F", return fromObj toFahrenheit(value))
+        )
+    )
+    return nil
 )
 
 // Example usage
-if(isLaunchScript,
-    "25°C in Fahrenheit: " print
-    CelsiusToFahrenheit(25) println
-    
-    "77°F in Celsius: " print
-    FahrenheitToCelsius(77) println
-)
+// result := TemperatureConverter convert(100, "C", "F")
+// result println
