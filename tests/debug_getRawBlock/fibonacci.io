@@ -1,17 +1,9 @@
 
 fibonacci := method(n,
-    memo := Map clone
-    memo atPut(0, 0)
-    memo atPut(1, 1)
-    
-    fib := method(x,
-        memo at(x) ifNil(
-            memo atPut(x, fib(x-1) + fib(x-2))
-        )
-        memo at(x)
-    )
-    
-    fib(n)
+    if(n <= 1, return n)
+    return fibonacci(n - 1) + fibonacci(n - 2)
 )
 
-for(i, 0, 10, fibonacci(i) println)
+for(i, 0, 10,
+    fibonacci(i) println
+)
