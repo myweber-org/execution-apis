@@ -1,30 +1,31 @@
 
-WebCrawler := Object clone do(
-    fetchHtml := method(url,
-        urlObj := URL with(url)
-        urlObj fetch
-    )
+#!/usr/bin/env io
 
-    extractLinks := method(html,
-        links := List clone
-        html split("\n") foreach(line,
-            if(line containsSeq("href="),
-                start := line findSeq("href=") + 6
-                end := line findSeq("\"", start)
-                if(end, links append(line slice(start, end)))
+UrlFetcher := Object clone do(
+    fetchTitle := method(url,
+        request := URL with(url) fetch
+        if(request isError,
+            return "Error fetching URL: #{url}" interpolate
+        )
+        html := request contents
+        titleMatch := html findSeq("<title>")
+        if(titleMatch,
+            start := titleMatch + 7
+            end := html findSeq("</title>", start)
+            if(end,
+                return html slice(start, end)
             )
         )
-        links
-    )
-
-    crawl := method(url,
-        html := fetchHtml(url)
-        links := extractLinks(html)
-        links
+        return "No title found"
     )
 )
 
-// Example usage
-crawler := WebCrawler clone
-result := crawler crawl("http://example.com")
-result foreach(link, link println)
+if(isLaunchScript,
+    if(System args size > 1,
+        url := System args at(1)
+        title := UrlFetcher fetchTitle(url)
+        title println
+    ,
+        "Usage: #{System launchPath} <url>" interpolate println
+    )
+)
