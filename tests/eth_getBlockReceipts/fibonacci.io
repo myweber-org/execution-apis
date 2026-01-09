@@ -120,3 +120,14 @@ fib := method(n,
 for(i, 0, 10,
     fib(i) println
 )
+fib := Object clone
+fib memo := Map clone
+fib generate := method(n,
+    if (memo hasKey(n), return memo at(n))
+    if (n <= 1, return n)
+    result := self generate(n - 1) + self generate(n - 2)
+    memo atPut(n, result)
+    result
+)
+
+fib generate(10) println
