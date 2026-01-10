@@ -35,3 +35,28 @@ FileProcessor := Object clone do(
         size
     )
 )
+FileProcessor := Object clone do(
+    processFile := method(path,
+        file := File with(path)
+        if(file exists not, return "File not found")
+        
+        size := file size
+        fileType := if(path endsWithSeq(".io"), "Io source", 
+                      path endsWithSeq(".txt"), "Text",
+                      "Unknown")
+        
+        "Processed: #{path} | Size: #{size} bytes | Type: #{fileType}" interpolate
+    )
+    
+    validatePath := method(path,
+        if(path isNil or path asString isEmpty, 
+            return false,
+            return path asString beginsWithSeq("/") or path asString containsSeq(":")
+        )
+    )
+)
+
+// Example usage
+processor := FileProcessor clone
+result := processor processFile("example.txt")
+result println
