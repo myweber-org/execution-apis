@@ -1,16 +1,27 @@
+
 #!/usr/bin/env io
 
 HttpServer := Object clone do(
-    handleSocket := method(socket,
-        socket streamWrite("HTTP/1.1 200 OK\r\n")
-        socket streamWrite("Content-Type: text/plain\r\n")
-        socket streamWrite("\r\n")
-        socket streamWrite("Hello, World!\n")
-        socket close
+    handleRequest := method(request, response,
+        response setHeader("Content-Type", "text/plain")
+        response setStatusCode(200)
+        response write("Hello from Io HTTP Server!\n")
+        response write("Request path: " .. request path .. "\n")
+        response write("Current time: " .. Date now asString .. "\n")
+        response close
+    )
+    
+    start := method(port,
+        server := NetworkServer clone setPort(port) setHandler(block(request, response,
+            self handleRequest(request, response)
+        ))
+        
+        "Starting HTTP server on port #{port}" interpolate println
+        server start
+        server wait
     )
 )
 
-server := HttpServer clone
-server setPort(8080)
-server start
-server wait
+if(isLaunchScript,
+    HttpServer start(8080)
+)
