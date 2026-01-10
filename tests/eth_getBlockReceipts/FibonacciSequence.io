@@ -4,14 +4,14 @@ fib := method(n,
     memo atPut(0, 0)
     memo atPut(1, 1)
     
-    fibHelper := method(n,
+    fibRecursive := method(n,
         if(memo hasKey(n), return memo at(n))
-        result := fibHelper(n - 1) + fibHelper(n - 2)
+        result := fibRecursive(n - 1) + fibRecursive(n - 2)
         memo atPut(n, result)
         result
     )
     
-    fibHelper(n)
+    fibRecursive(n)
 )
 
 "First 10 Fibonacci numbers:" println
