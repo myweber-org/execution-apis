@@ -57,3 +57,15 @@ fibonacci := method(n,
 
 "Fibonacci sequence:" println
 for(i, 0, 10, fibonacci(i) println)
+fib := Object clone
+fib memo := Map clone
+
+fib generate := method(n,
+    if (fib memo hasKey(n), return fib memo at(n))
+    if (n <= 1, return n)
+    result := fib generate(n - 1) + fib generate(n - 2)
+    fib memo atPut(n, result)
+    result
+)
+
+fib generate(10) println
