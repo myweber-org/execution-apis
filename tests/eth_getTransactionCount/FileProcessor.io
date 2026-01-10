@@ -33,3 +33,24 @@ FileProcessor := Object clone do(
         )
     )
 )
+FileProcessor := Object clone do(
+    readLines := method(path, delimiter,
+        file := File with(path)
+        if(file exists not, return nil)
+        content := file openForReading contents
+        file close
+        if(delimiter, content split(delimiter), content split("\n"))
+    )
+    
+    processLines := method(path, processor, delimiter,
+        lines := self readLines(path, delimiter)
+        if(lines, lines map(processor))
+    )
+    
+    countWords := method(path,
+        self processLines(path,
+            block(line, line split(" ") size),
+            "\n"
+        ) sum
+    )
+)
