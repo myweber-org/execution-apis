@@ -1,25 +1,4 @@
 
-fib := method(n,
-    memo := Map clone
-    memo atPut(0, 0)
-    memo atPut(1, 1)
-    
-    fibRec := method(k,
-        if(memo hasKey(k), return memo at(k))
-        result := fibRec(k-1) + fibRec(k-2)
-        memo atPut(k, result)
-        result
-    )
-    
-    fibRec(n)
-)
-
-"First 10 Fibonacci numbers:" println
-for(i, 0, 9,
-    fib(i) print
-    " " print
-)
-"" println
 fibonacci := method(n,
     memo := Map clone
     memo atPut(0, 0)
@@ -39,7 +18,5 @@ fibonacci := method(n,
 
 "First 10 Fibonacci numbers:" println
 for(i, 0, 9,
-    fibonacci(i) print
-    " " print
+    fibonacci(i) println
 )
-"" println
