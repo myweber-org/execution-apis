@@ -1,17 +1,19 @@
 
 fibonacci := method(n,
-    cache := Map clone
-    cache atPut(0, 0)
-    cache atPut(1, 1)
+    memo := Map clone
+    memo atPut(0, 0)
+    memo atPut(1, 1)
     
-    fib := block(n,
-        if(cache hasKey(n), return cache at(n))
-        result := fib call(n-1) + fib call(n-2)
-        cache atPut(n, result)
-        result
+    fib := method(i,
+        if(memo hasKey(i),
+            memo at(i),
+            result := fib(i-1) + fib(i-2)
+            memo atPut(i, result)
+            result
+        )
     )
     
-    fib call(n)
+    fib(n)
 )
 
 "Fibonacci sequence:" println
