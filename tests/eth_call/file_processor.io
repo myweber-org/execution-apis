@@ -78,3 +78,28 @@ testContent := "Hello, Io World!\nThis is a test file."
 processor writeFile("test_output.txt", testContent)
 copiedContent := processor readFile("test_output.txt")
 ("Copied content: " .. copiedContent) println
+FileProcessor := Object clone do(
+    readCSV := method(path,
+        file := File with(path) openForReading
+        lines := file readLines
+        file close
+        lines map(line, line split(","))
+    )
+    
+    writeCSV := method(data, path,
+        file := File with(path) openForUpdating
+        data foreach(row,
+            line := row join(",")
+            file write(line, "\n")
+        )
+        file close
+    )
+    
+    filterRows := method(data, columnIndex, value,
+        data select(row, row at(columnIndex) == value)
+    )
+    
+    getColumn := method(data, columnIndex,
+        data map(row, row at(columnIndex))
+    )
+)
