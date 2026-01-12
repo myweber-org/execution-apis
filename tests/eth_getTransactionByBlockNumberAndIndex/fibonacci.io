@@ -44,3 +44,20 @@ for(i, 0, 9,
     " " print
 )
 "" println
+fib := method(n,
+    memo := Map clone
+    memo atPut(0, 0)
+    memo atPut(1, 1)
+    
+    fibMemo := method(k,
+        if(memo hasKey(k), return memo at(k))
+        result := fibMemo(k-1) + fibMemo(k-2)
+        memo atPut(k, result)
+        result
+    )
+    
+    fibMemo(n)
+)
+
+"Fibonacci sequence:" println
+for(i, 0, 10, fib(i) println)
