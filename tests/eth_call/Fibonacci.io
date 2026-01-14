@@ -4,16 +4,14 @@ fib := method(n,
     cache atPut(0, 0)
     cache atPut(1, 1)
     
-    fibMemo := method(n,
-        if(cache hasKey(n),
-            cache at(n),
-            result := fibMemo(n-1) + fibMemo(n-2)
-            cache atPut(n, result)
-            result
-        )
+    fibHelper := method(n,
+        if(cache hasKey(n), return cache at(n))
+        result := fibHelper(n-1) + fibHelper(n-2)
+        cache atPut(n, result)
+        result
     )
     
-    fibMemo(n)
+    fibHelper(n)
 )
 
 "First 10 Fibonacci numbers:" println
