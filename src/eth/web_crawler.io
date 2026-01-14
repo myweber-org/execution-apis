@@ -46,3 +46,44 @@ WebCrawler := Object clone do(
 
 crawler := WebCrawler clone
 crawler crawl("http://example.com")
+WebCrawler := Object clone do(
+    fetchHtml := method(url,
+        urlObj := URL with(url)
+        urlObj fetch
+    )
+
+    extractLinks := method(html,
+        links := List clone
+        html split("\n") foreach(line,
+            if(line containsSeq("href=\""),
+                start := line findSeq("href=\"") + 6
+                end := line findSeq("\"", start)
+                if(end != nil,
+                    link := line slice(start, end)
+                    if(link beginsWithSeq("http"),
+                        links append(link)
+                    )
+                )
+            )
+        )
+        links
+    )
+
+    crawl := method(url, depth,
+        if(depth <= 0, return)
+        
+        html := self fetchHtml(url)
+        if(html == nil, return)
+        
+        writeln("Crawling: ", url)
+        
+        links := self extractLinks(html)
+        links foreach(link,
+            writeln("Found link: ", link)
+            self crawl(link, depth - 1)
+        )
+    )
+)
+
+crawler := WebCrawler clone
+crawler crawl("http://example.com", 2)
