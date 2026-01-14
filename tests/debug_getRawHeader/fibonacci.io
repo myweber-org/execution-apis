@@ -1,17 +1,19 @@
 
 fib := method(n,
-    memo := Map clone
-    memo atPut(0, 0)
-    memo atPut(1, 1)
+    cache := Map clone
+    cache atPut(0, 0)
+    cache atPut(1, 1)
     
-    fibRec := method(k,
-        if(memo hasKey(k), return memo at(k))
-        result := fibRec(k-1) + fibRec(k-2)
-        memo atPut(k, result)
-        result
+    fibInternal := method(n,
+        if(cache hasKey(n),
+            cache at(n),
+            result := fibInternal(n - 1) + fibInternal(n - 2)
+            cache atPut(n, result)
+            result
+        )
     )
     
-    fibRec(n)
+    fibInternal(n)
 )
 
 "First 10 Fibonacci numbers:" println
