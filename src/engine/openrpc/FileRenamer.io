@@ -59,3 +59,34 @@ if(isLaunchScript,
         writeln("Path does not exist: #{target}" interpolate)
     )
 )
+FileRenamer := Object clone do(
+    renameFiles := method(directoryPath, prefix,
+        files := Directory with(directoryPath) files
+        counter := 1
+        files foreach(i, file,
+            if(file name beginsWithSeq("IMG_") or file name beginsWithSeq("DSC_"),
+                extension := file name split(".") last
+                newName := "#{prefix}#{counter}.#{extension}" interpolate
+                oldPath := file path
+                newPath := Path with(directoryPath) appendPath(newName)
+                
+                if(File clone with(newPath) exists not,
+                    file moveTo(newPath)
+                    "Renamed: #{oldPath} -> #{newPath}" interpolate println
+                    counter = counter + 1
+                ,
+                    "Skipped: #{newPath} already exists" interpolate println
+                )
+            )
+        )
+        "Total files renamed: #{counter - 1}" interpolate println
+    )
+)
+
+if(isLaunchScript,
+    if(System args size == 3,
+        FileRenamer renameFiles(System args at(1), System args at(2))
+    ,
+        "Usage: io FileRenamer.io <directory> <prefix>" println
+    )
+)
