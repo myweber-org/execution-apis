@@ -60,3 +60,39 @@ FileProcessor := Object clone do(
 processor := FileProcessor clone
 result := processor processFile("example.txt")
 result println
+FileProcessor := Object clone do(
+    countLines := method(path,
+        file := File with(path)
+        if(file exists not, return 0)
+        file openForReading
+        count := 0
+        file foreachLine(line, count = count + 1)
+        file close
+        count
+    )
+
+    filterLines := method(path, pattern,
+        result := List clone
+        file := File with(path)
+        if(file exists not, return result)
+        file openForReading
+        file foreachLine(line,
+            if(line contains(pattern),
+                result append(line)
+            )
+        )
+        file close
+        result
+    )
+
+    getFileInfo := method(path,
+        file := File with(path)
+        Map clone atPut("exists", file exists) \
+                   atPut("size", file size) \
+                   atPut("lastModified", file lastModifiedDate)
+    )
+)
+
+processor := FileProcessor clone
+info := processor getFileInfo("test.txt")
+info keys foreach(key, writeln(key, ": ", info at(key)))
