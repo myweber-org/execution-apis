@@ -4,7 +4,7 @@ FileProcessor := Object clone do(
         file := File with(path)
         if(file exists not, return nil)
         file openForReading
-        content := file contents
+        content := file readToEnd
         file close
         content
     )
@@ -44,11 +44,10 @@ if(processor fileExists(testPath) not,
     processor writeFile(testPath, "Initial content\n")
 )
 
-processor appendToFile(testPath, "Appended content\n")
+processor appendToFile(testPath, "Appended line\n")
 
 content := processor readFile(testPath)
-if(content,
-    "File content:" println
-    content println
-    ("File size: " .. processor getFileSize(testPath) .. " bytes") println
-)
+size := processor getFileSize(testPath)
+
+("File content: " .. content) println
+("File size: " .. size .. " bytes") println
