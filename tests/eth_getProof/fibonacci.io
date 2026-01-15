@@ -1,18 +1,18 @@
 
-fib := method(n,
+fibonacci := method(n,
     memo := Map clone
     memo atPut(0, 0)
     memo atPut(1, 1)
     
-    fibRec := method(k,
-        memo hasKey(k) ifFalse(
-            memo atPut(k, fibRec(k-1) + fibRec(k-2))
-        )
-        memo at(k)
+    fib := method(x,
+        if(memo hasKey(x), return memo at(x))
+        result := fib(x-1) + fib(x-2)
+        memo atPut(x, result)
+        result
     )
     
-    fibRec(n)
+    fib(n)
 )
 
-"Fibonacci of 10: " print
-fib(10) println
+"Fibonacci sequence:" println
+for(i, 0, 10, fibonacci(i) println)
