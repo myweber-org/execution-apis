@@ -1,18 +1,34 @@
 FileProcessor := Object clone do(
     cache := Map clone
-    lazyLoad := method(filename,
-        if(cache hasKey(filename) not,
-            cache atPut(filename, File with(filename) openForReading contents)
+
+    lazyLoad := method(path,
+        if(cache hasKey(path) not,
+            cache atPut(path, File with(path) openForReading contents)
         )
-        cache at(filename)
+        cache at(path)
     )
-    
-    process := method(filename,
-        content := lazyLoad(filename)
+
+    process := method(path,
+        content := lazyLoad(path)
         words := content split(" ") select(word, word size > 0)
         uniqueWords := words unique
-        Map clone atPut("total", words size) atPut("unique", uniqueWords size)
+        result := Map clone
+        uniqueWords foreach(word,
+            count := words select(w, w == word) size
+            result atPut(word, count)
+        )
+        result
     )
-    
-    clearCache := method(cache empty)
+
+    clearCache := method(
+        cache removeAll
+        self
+    )
 )
+
+processor := FileProcessor clone
+result := processor process("sample.txt")
+result keys sort foreach(key,
+    writeln(key, ": ", result at(key))
+)
+processor clearCache
