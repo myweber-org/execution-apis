@@ -1,51 +1,17 @@
 
-CelsiusToFahrenheit := method(celsius, celsius * 9 / 5 + 32)
-CelsiusToKelvin := method(celsius, celsius + 273.15)
+Celsius := Object clone
+Celsius toFahrenheit := method(self * 9 / 5 + 32)
+Celsius toKelvin := method(self + 273.15)
 
-TemperatureConverter := Object clone do(
-    convert := method(value, unit,
-        if(unit == "CtoF", return CelsiusToFahrenheit(value))
-        if(unit == "CtoK", return CelsiusToKelvin(value))
-        Exception raise("Unsupported conversion unit: " .. unit)
-    )
-    
-    displayConversions := method(celsiusValue,
-        fahrenheit := CelsiusToFahrenheit(celsiusValue)
-        kelvin := CelsiusToKelvin(celsiusValue)
-        
-        "Celsius: #{celsiusValue}" interpolate println
-        "Fahrenheit: #{fahrenheit}" interpolate println
-        "Kelvin: #{kelvin}" interpolate println
-    )
-)
+Fahrenheit := Object clone
+Fahrenheit toCelsius := method((self - 32) * 5 / 9)
+Fahrenheit toKelvin := method(self toCelsius + 273.15)
+
+Kelvin := Object clone
+Kelvin toCelsius := method(self - 273.15)
+Kelvin toFahrenheit := method(self toCelsius * 9 / 5 + 32)
 
 // Example usage
-converter := TemperatureConverter clone
-converter displayConversions(25)
-result := converter convert(100, "CtoF")
-"100°C in Fahrenheit: #{result}" interpolate println
-Celsius := Object clone do(
-    toFahrenheit := method(self * 9 / 5 + 32)
-    toKelvin := method(self + 273.15)
-)
-
-Fahrenheit := Object clone do(
-    toCelsius := method((self - 32) * 5 / 9)
-    toKelvin := method(self toCelsius + 273.15)
-)
-
-Kelvin := Object clone do(
-    toCelsius := method(self - 273.15)
-    toFahrenheit := method(self toCelsius * 9 / 5 + 32)
-)
-
-// Example usage
-if(isLaunchScript,
-    celsiusValue := 25
-    fahrenheitValue := celsiusValue Celsius toFahrenheit
-    kelvinValue := celsiusValue Celsius toKelvin
-    
-    celsiusValue println
-    fahrenheitValue println
-    kelvinValue println
-)
+"25°C in Fahrenheit: " print; (25 Celsius toFahrenheit) println
+"100°F in Celsius: " print; (100 Fahrenheit toCelsius) println
+"300K in Celsius: " print; (300 Kelvin toCelsius) println
