@@ -68,3 +68,17 @@ if(isLaunchScript,
     
     writeln("Single conversion 100°C to Fahrenheit: ", converter convert(100, "CtoF"))
 )
+CelsiusToFahrenheit := method(celsius,
+    (celsius * 9/5) + 32
+)
+
+main := method(
+    "Enter temperature in Celsius: " print
+    input := File standardInput readLine asNumber
+    fahrenheit := CelsiusToFahrenheit(input)
+    ("Temperature in Fahrenheit: " .. fahrenheit) println
+)
+
+if(isLaunchScript,
+    main()
+)
