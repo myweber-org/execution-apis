@@ -41,3 +41,14 @@ for(i, 0, 9,
     " " print
 )
 "" println
+fib := Object clone
+fib memo := Map clone
+fib fib := method(n,
+    if(n <= 1, return n)
+    if(fib memo hasKey(n), return fib memo at(n))
+    result := fib fib(n-1) + fib fib(n-2)
+    fib memo atPut(n, result)
+    result
+)
+
+fib fib(10) println
