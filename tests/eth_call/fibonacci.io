@@ -1,50 +1,17 @@
 
-fibonacci := method(n,
-    if(n <= 1, return n)
-    return fibonacci(n - 1) + fibonacci(n - 2)
-)
-
-for(i, 0, 10,
-    fibonacci(i) println
-)
-fibonacci := method(n,
+fib := method(n,
     memo := Map clone
     memo atPut(0, 0)
     memo atPut(1, 1)
     
-    fib := method(i,
-        if(memo hasKey(i), 
-            memo at(i),
-            result := fib(i-1) + fib(i-2)
-            memo atPut(i, result)
-            result
-        )
+    fibRecursive := method(n,
+        if(memo hasKey(n), return memo at(n))
+        result := fibRecursive(n-1) + fibRecursive(n-2)
+        memo atPut(n, result)
+        result
     )
     
-    fib(n)
+    fibRecursive(n)
 )
 
-"Fibonacci sequence:" println
-for(i, 0, 10, 
-    (fibonacci(i) asString .. ", ") print
-)
-"" println
-fibonacci := method(n,
-    memo := Map clone
-    memo atPut(0, 0)
-    memo atPut(1, 1)
-    
-    fib := method(k,
-        if(memo hasKey(k),
-            memo at(k),
-            result := fib(k-1) + fib(k-2)
-            memo atPut(k, result)
-            result
-        )
-    )
-    
-    fib(n)
-)
-
-"Fibonacci sequence:" println
-for(i, 0, 10, fibonacci(i) println)
+for(i, 0, 10, write(fib(i), " "))
