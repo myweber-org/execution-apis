@@ -223,3 +223,238 @@ if(isLaunchScript,
     writeln("\nPretty printed:")
     parser prettyPrint(parsed)
 )
+JsonParser := Object clone do(
+    parse := method(jsonString,
+        if(jsonString isNil or jsonString isEmpty,
+            Exception raise("Empty JSON string")
+        )
+        
+        // Remove whitespace
+        cleanString := jsonString asMutable strip
+        
+        // Validate basic structure
+        if(cleanString at(0) != "{" and cleanString at(0) != "[",
+            Exception raise("Invalid JSON: must start with { or [")
+        )
+        
+        // Simple JSON parser implementation
+        parseValue := method(str, idx,
+            currentChar := str at(idx)
+            
+            if(currentChar == "{",
+                return parseObject(str, idx + 1)
+            )
+            
+            if(currentChar == "[",
+                return parseArray(str, idx + 1)
+            )
+            
+            if(currentChar == "\"",
+                return parseString(str, idx + 1)
+            )
+            
+            if(currentChar isDigit or currentChar == "-",
+                return parseNumber(str, idx)
+            )
+            
+            if(str slice(idx, idx + 4) == "true",
+                return list(true, idx + 4)
+            )
+            
+            if(str slice(idx, idx + 5) == "false",
+                return list(false, idx + 5)
+            )
+            
+            if(str slice(idx, idx + 4) == "null",
+                return list(nil, idx + 4)
+            )
+            
+            Exception raise("Invalid JSON at position #{idx}" interpolate)
+        )
+        
+        parseObject := method(str, idx,
+            obj := Map clone
+            skipWhitespace := method(str, idx,
+                while(idx < str size and str at(idx) isSpace,
+                    idx = idx + 1
+                )
+                idx
+            )
+            
+            idx = skipWhitespace(str, idx)
+            
+            if(str at(idx) == "}",
+                return list(obj, idx + 1)
+            )
+            
+            while(true,
+                // Parse key
+                result := parseString(str, idx)
+                key := result at(0)
+                idx = result at(1)
+                
+                idx = skipWhitespace(str, idx)
+                
+                if(str at(idx) != ":",
+                    Exception raise("Expected : at position #{idx}" interpolate)
+                )
+                
+                idx = idx + 1
+                idx = skipWhitespace(str, idx)
+                
+                // Parse value
+                result := parseValue(str, idx)
+                value := result at(0)
+                idx = result at(1)
+                
+                obj atPut(key, value)
+                
+                idx = skipWhitespace(str, idx)
+                
+                if(str at(idx) == "}",
+                    return list(obj, idx + 1)
+                )
+                
+                if(str at(idx) != ",",
+                    Exception raise("Expected , or } at position #{idx}" interpolate)
+                )
+                
+                idx = idx + 1
+                idx = skipWhitespace(str, idx)
+            )
+        )
+        
+        parseArray := method(str, idx,
+            arr := List clone
+            skipWhitespace(str, idx)
+            
+            if(str at(idx) == "]",
+                return list(arr, idx + 1)
+            )
+            
+            while(true,
+                result := parseValue(str, idx)
+                value := result at(0)
+                idx = result at(1)
+                
+                arr append(value)
+                
+                idx = skipWhitespace(str, idx)
+                
+                if(str at(idx) == "]",
+                    return list(arr, idx + 1)
+                )
+                
+                if(str at(idx) != ",",
+                    Exception raise("Expected , or ] at position #{idx}" interpolate)
+                )
+                
+                idx = idx + 1
+                idx = skipWhitespace(str, idx)
+            )
+        )
+        
+        parseString := method(str, idx,
+            start := idx
+            while(idx < str size,
+                ch := str at(idx)
+                if(ch == "\"",
+                    return list(str slice(start, idx), idx + 1)
+                )
+                
+                if(ch == "\\",
+                    idx = idx + 1  // Skip escaped character
+                )
+                
+                idx = idx + 1
+            )
+            
+            Exception raise("Unterminated string")
+        )
+        
+        parseNumber := method(str, idx,
+            start := idx
+            while(idx < str size and (str at(idx) isDigit or str at(idx) in list(".", "-", "e", "E", "+")),
+                idx = idx + 1
+            )
+            
+            numStr := str slice(start, idx)
+            // Simple number parsing - in production would use more robust method
+            if(numStr contains("."),
+                return list(numStr asNumber, idx)
+            )
+            
+            return list(numStr asNumber, idx)
+        )
+        
+        result := parseValue(cleanString, 0)
+        result at(0)
+    )
+    
+    prettyPrint := method(parsedObject, indentLevel := 0,
+        indent := "  " repeated(indentLevel)
+        
+        if(parsedObject type == "Map",
+            "{\n" print
+            count := 0
+            parsedObject keys foreach(key,
+                if(count > 0, ",\n" print)
+                "#{indent}  \"#{key}\": " interpolate print
+                prettyPrint(parsedObject at(key), indentLevel + 1)
+                count = count + 1
+            )
+            "\n#{indent}}" interpolate print
+        )
+        
+        if(parsedObject type == "List",
+            "[\n" print
+            count := 0
+            parsedObject foreach(value,
+                if(count > 0, ",\n" print)
+                "#{indent}  " interpolate print
+                prettyPrint(value, indentLevel + 1)
+                count = count + 1
+            )
+            "\n#{indent}]" interpolate print
+        )
+        
+        if(parsedObject type == "Sequence",
+            "\"#{parsedObject}\"" interpolate print
+        )
+        
+        if(parsedObject type == "Number",
+            parsedObject asString print
+        )
+        
+        if(parsedObject isNil,
+            "null" print
+        )
+        
+        if(parsedObject type == "Boolean",
+            parsedObject asString print
+        )
+    )
+    
+    validate := method(jsonString,
+        try(
+            parse(jsonString)
+            true
+        ) catch(Exception,
+            false
+        )
+    )
+)
+
+// Example usage
+if(isLaunchScript,
+    jsonString := "{\"name\": \"John\", \"age\": 30, \"hobbies\": [\"reading\", \"coding\"]}"
+    
+    writeln("Valid JSON: ", JsonParser validate(jsonString))
+    
+    writeln("\nParsed object:")
+    parsed := JsonParser parse(jsonString)
+    parsed asJson println
+    
+    writeln("\nPretty printed:")
+    JsonParser prettyPrint(parsed)
+)
