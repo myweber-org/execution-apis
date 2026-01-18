@@ -16,9 +16,5 @@ fibonacci := method(n,
     fib(n)
 )
 
-"Fibonacci sequence first 10 numbers:" println
-for(i, 0, 9,
-    fibonacci(i) print
-    " " print
-)
-"" println
+"Fibonacci sequence:" println
+for(i, 0, 10, fibonacci(i) println)
