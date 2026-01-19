@@ -1,24 +1,17 @@
-#!/usr/bin/env io
 
-UrlFetcher := Object clone do(
-    fetchTitle := method(url,
-        request := URL with(url) fetch
-        if(request isError,
-            return "Error fetching URL: #{url}" interpolate,
-            // Extract title from HTML
-            html := request contents
-            titleStart := html findSeq("<title>")
-            titleEnd := html findSeq("</title>")
-            if(titleStart and titleEnd,
-                return html exclusiveSlice(titleStart + 7, titleEnd)
-            ,
-                return "No title found for URL: #{url}" interpolate
-            )
+URL := "https://example.com"
+titleRegex := Regex with("(?i)<title>(.*?)</title>")
+
+fetchTitle := method(url,
+    request := URL with(url) fetch
+    if(request isNil,
+        writeln("Failed to fetch: ", url),
+        matches := titleRegex matchesInString(request)
+        if(matches size > 0,
+            writeln("Title: ", matches at(0) at(1)),
+            writeln("No title found")
         )
     )
 )
 
-// Example usage
-fetcher := UrlFetcher clone
-title := fetcher fetchTitle("https://example.com")
-title println
+fetchTitle(URL)
