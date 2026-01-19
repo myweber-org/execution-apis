@@ -17,3 +17,20 @@ fib := method(n,
 )
 
 for(i, 0, 10, write(fib(i), " "))
+fib := method(n,
+    cache := Map clone
+    cache atPut(0, 0)
+    cache atPut(1, 1)
+    
+    fibMemo := method(k,
+        if(cache hasKey(k), return cache at(k))
+        result := fibMemo(k-1) + fibMemo(k-2)
+        cache atPut(k, result)
+        result
+    )
+    
+    fibMemo(n)
+)
+
+"Fibonacci sequence:" println
+for(i, 0, 10, fib(i) println)
