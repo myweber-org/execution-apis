@@ -1,17 +1,17 @@
 
-CelsiusToFahrenheit := method(celsius,
-    (celsius * 9/5) + 32
-)
+Celsius := Object clone
+Celsius toFahrenheit := method(self * 9 / 5 + 32)
+Celsius toKelvin := method(self + 273.15)
 
-FahrenheitToCelsius := method(fahrenheit,
-    (fahrenheit - 32) * 5/9
-)
+Fahrenheit := Object clone
+Fahrenheit toCelsius := method((self - 32) * 5 / 9)
+Fahrenheit toKelvin := method((self - 32) * 5 / 9 + 273.15)
+
+Kelvin := Object clone
+Kelvin toCelsius := method(self - 273.15)
+Kelvin toFahrenheit := method((self - 273.15) * 9 / 5 + 32)
 
 // Example usage
-celsiusValue := 25
-fahrenheitValue := CelsiusToFahrenheit(celsiusValue)
-(celsiusValue .. "°C is " .. fahrenheitValue .. "°F") println
-
-fahrenheitValue2 := 77
-celsiusValue2 := FahrenheitToCelsius(fahrenheitValue2)
-(fahrenheitValue2 .. "°F is " .. celsiusValue2 .. "°C") println
+100 Celsius toFahrenheit println
+32 Fahrenheit toCelsius println
+273.15 Kelvin toCelsius println
