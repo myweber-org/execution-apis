@@ -27,3 +27,35 @@ FileRenamer := Object clone do(
         return results
     )
 )
+FileRenamer := Object clone do(
+    renameFiles := method(directoryPath, prefix,
+        files := Directory with(directoryPath) files
+        sortedFiles := files sortBy(block(a, b, a name < b name))
+        counter := 1
+        
+        sortedFiles foreach(file,
+            extension := if(file name containsSeq("."), 
+                "." .. file name split(".") last, 
+                ""
+            )
+            newName := prefix .. counter .. extension
+            oldPath := directoryPath .. "/" .. file name
+            newPath := directoryPath .. "/" .. newName
+            
+            if(File clone with(oldPath) exists,
+                File clone with(oldPath) renameTo(newPath)
+                write("Renamed: ", file name, " -> ", newName, "\n")
+            )
+            counter = counter + 1
+        )
+        write("Renaming complete.\n")
+    )
+)
+
+if(isLaunchScript,
+    if(System args size == 3,
+        FileRenamer renameFiles(System args at(1), System args at(2))
+    ,
+        write("Usage: io FileRenamer.io <directory> <prefix>\n")
+    )
+)
