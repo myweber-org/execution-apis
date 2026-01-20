@@ -1,17 +1,17 @@
 
 fibonacci := method(n,
-    memo := Map clone
+    memo := Map withDefault(0)
     memo atPut(0, 0)
     memo atPut(1, 1)
     
-    fib := method(i,
-        if(memo hasKey(i), return memo at(i))
-        result := fib(i-1) + fib(i-2)
-        memo atPut(i, result)
-        result
+    fib := block(i,
+        if(memo hasKey(i) not,
+            memo atPut(i, fib call(i-1) + fib call(i-2))
+        )
+        memo at(i)
     )
     
-    fib(n)
+    fib call(n)
 )
 
 "Fibonacci sequence:" println
