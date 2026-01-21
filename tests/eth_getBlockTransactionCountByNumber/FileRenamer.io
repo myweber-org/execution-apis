@@ -25,3 +25,26 @@ if(isLaunchScript,
         "Usage: io FileRenamer.io <filepath>" println
     )
 )
+FileRenamer := Object clone do(
+    renameFilesWithPrefix := method(directory, prefix,
+        files := Directory with(directory) files
+        files foreach(i, file,
+            oldPath := file path
+            newName := prefix .. file name
+            newPath := Path with(directory) appendPath(newName)
+            if(oldPath != newPath,
+                file moveTo(newPath)
+                writeln("Renamed: ", oldPath, " -> ", newPath)
+            )
+        )
+        writeln("Renaming complete for ", files size, " files")
+    )
+)
+
+if(isLaunchScript,
+    if(System args size >= 3,
+        FileRenamer renameFilesWithPrefix(System args at(1), System args at(2))
+    ,
+        writeln("Usage: io FileRenamer.io <directory> <prefix>")
+    )
+)
