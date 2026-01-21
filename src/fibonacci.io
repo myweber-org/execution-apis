@@ -34,3 +34,28 @@ fib := method(n,
 )
 
 for(i, 0, 10, write(fib(i), " "))
+fibonacci := Object clone
+fibonacci cache := Map clone
+
+fibonacci get := method(n,
+    if (n <= 1, return n)
+    if (cache hasKey(n), return cache at(n))
+    
+    result := get(n - 1) + get(n - 2)
+    cache atPut(n, result)
+    return result
+)
+
+fibonacci generateSequence := method(count,
+    sequence := List clone
+    for (i, 0, count - 1,
+        sequence append(get(i))
+    )
+    return sequence
+)
+
+fibonacci clearCache := method(
+    cache removeAll
+)
+
+fibonacci generateSequence(10) println
