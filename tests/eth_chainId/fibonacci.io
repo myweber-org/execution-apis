@@ -50,3 +50,19 @@ fibonacci := method(n,
 
 "Fibonacci sequence:" println
 for(i, 0, 10, fibonacci(i) println)
+fibonacci := Object clone
+fibonacci cache := Map clone
+
+fibonacci at := method(n,
+    if (cache hasKey(n), return cache at(n))
+    if (n <= 1, return n)
+    result := self at(n - 1) + self at(n - 2)
+    cache atPut(n, result)
+    result
+)
+
+fibonacci generate := method(n,
+    for(i, 0, n, self at(i) println)
+)
+
+fibonacci generate(10)
