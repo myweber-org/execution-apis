@@ -41,3 +41,11 @@ fib := method(n,
 for(i, 0, 10,
     fib(i) println
 )
+fib := method(n,
+    if(n <= 1, n, fib(n - 1) + fib(n - 2))
+)
+
+"Fibonacci sequence:" println
+for(i, 0, 10,
+    fib(i) println
+)
