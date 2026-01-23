@@ -4,13 +4,11 @@ fibonacci := method(n,
     memo atPut(0, 0)
     memo atPut(1, 1)
     
-    fib := method(n,
-        if(memo hasKey(n),
-            memo at(n),
-            result := fib(n-1) + fib(n-2)
-            memo atPut(n, result)
-            result
-        )
+    fib := method(i,
+        if(memo hasKey(i), return memo at(i))
+        result := fib(i-1) + fib(i-2)
+        memo atPut(i, result)
+        result
     )
     
     fib(n)
