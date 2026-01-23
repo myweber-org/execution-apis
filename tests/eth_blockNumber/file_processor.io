@@ -1,37 +1,24 @@
 
 FileProcessor := Object clone do(
-    readFile := method(path,
-        file := File with(path)
-        if(file exists,
-            file openForReading contents
-        ,
-            Exception raise("File not found: #{path}" interpolate)
-        )
-    )
-    
-    writeFile := method(path, content,
-        file := File with(path)
-        file remove
-        file openForUpdating write(content)
+    countLines := method(filePath,
+        file := File with(filePath) openForReading
+        lines := 0
+        file foreachLine(line, lines = lines + 1)
         file close
-        self
+        lines
     )
-    
-    appendToFile := method(path, content,
-        file := File with(path)
-        file openForAppending write(content)
+
+    countWords := method(filePath,
+        file := File with(filePath) openForReading
+        content := file readToEnd
         file close
-        self
+        words := content split(" ") size
+        words
     )
-    
-    copyFile := method(sourcePath, targetPath,
-        content := self readFile(sourcePath)
-        self writeFile(targetPath, content)
+
+    processFile := method(filePath,
+        lines := self countLines(filePath)
+        words := self countWords(filePath)
+        Map clone atPut("lines", lines) atPut("words", words)
     )
 )
-
-processor := FileProcessor clone
-processor writeFile("test.txt", "Hello, Io!")
-processor appendToFile("test.txt", "\nAppended text.")
-content := processor readFile("test.txt")
-content println
