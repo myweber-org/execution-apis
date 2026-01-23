@@ -22,3 +22,19 @@ TemperatureConverter convert := method(value, unit,
 converter := TemperatureConverter clone
 result := converter convert(25, "C")
 "25°C = #{result at(1)}°F = #{result at(2)}K" println
+CelsiusToFahrenheit := method(celsius,
+    (celsius * 9/5) + 32
+)
+
+FahrenheitToCelsius := method(fahrenheit,
+    (fahrenheit - 32) * 5/9
+)
+
+// Example usage
+celsiusTemp := 25
+fahrenheitTemp := CelsiusToFahrenheit(celsiusTemp)
+convertedBack := FahrenheitToCelsius(fahrenheitTemp)
+
+("Original Celsius: " .. celsiusTemp) println
+("Converted to Fahrenheit: " .. fahrenheitTemp) println
+("Converted back to Celsius: " .. convertedBack) println
