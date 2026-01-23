@@ -44,3 +44,42 @@ processor appendToFile(testFile, "Appended line\n")
 content := processor readFile(testFile)
 writeln("File content: ", content)
 writeln("File size: ", processor getFileSize(testFile), " bytes")
+FileProcessor := Object clone do(
+    readFile := method(path,
+        file := File with(path)
+        if(file exists,
+            file openForReading contents
+        ,
+            Exception raise("File not found: #{path}" interpolate)
+        )
+    )
+    
+    writeFile := method(path, content,
+        file := File with(path)
+        file remove
+        file openForUpdating write(content) close
+        "Written #{content size} bytes to #{path}" interpolate
+    )
+    
+    appendToFile := method(path, content,
+        file := File with(path)
+        if(file exists not, file create)
+        file openForAppending write(content) close
+        "Appended #{content size} bytes to #{path}" interpolate
+    )
+    
+    copyFile := method(sourcePath, targetPath,
+        content := self readFile(sourcePath)
+        self writeFile(targetPath, content)
+    )
+)
+
+processor := FileProcessor clone
+result := processor writeFile("test.txt", "Hello Io World!")
+result println
+
+processor appendToFile("test.txt", "\nAnother line added.")
+content := processor readFile("test.txt")
+content println
+
+processor copyFile("test.txt", "test_copy.txt")
