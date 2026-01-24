@@ -16,4 +16,4 @@ fib := method(n,
     fibRec(n)
 )
 
-for(i, 0, 10, write(fib(i), " "))
+for(i, 0, 10, writeln("fib(", i, ") = ", fib(i)))
