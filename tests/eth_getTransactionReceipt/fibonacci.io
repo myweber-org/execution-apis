@@ -20,3 +20,24 @@ for(i, 0, 9,
     " " print
 )
 "" println
+fibonacci := method(n,
+    memo := Map with(
+        "0", 0,
+        "1", 1
+    )
+    
+    fib := block(n,
+        if (memo hasKey(n asString) not,
+            memo atPut(n asString, fib call(n - 1) + fib call(n - 2))
+        )
+        memo at(n asString)
+    )
+    
+    fib call(n)
+)
+
+"Fibonacci sequence:" println
+for(i, 0, 10,
+    (fibonacci(i) .. " ") print
+)
+"" println
