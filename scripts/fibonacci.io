@@ -59,3 +59,20 @@ fib := method(n,
 for(i, 0, 10,
     (fib(i)) println
 )
+fibonacci := method(n,
+    memo := Map with(
+        "0", 0,
+        "1", 1
+    )
+    
+    fib := block(n,
+        if(memo hasKey(n asString) not,
+            memo atPut(n asString, fib call(n - 1) + fib call(n - 2))
+        )
+        memo at(n asString)
+    )
+    
+    fib call(n)
+)
+
+fibonacci(10) println
