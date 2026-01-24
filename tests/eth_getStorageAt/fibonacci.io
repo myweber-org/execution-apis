@@ -1,14 +1,14 @@
 
 fibonacci := method(n,
-    memo := Map clone
-    memo atPut(0, 0)
-    memo atPut(1, 1)
+    cache := Map clone
+    cache atPut(0, 0)
+    cache atPut(1, 1)
     
-    fib := method(x,
-        if(memo hasKey(x), 
-            memo at(x),
-            result := fib(x-1) + fib(x-2)
-            memo atPut(x, result)
+    fib := method(i,
+        if(cache hasKey(i),
+            cache at(i),
+            result := fib(i-1) + fib(i-2)
+            cache atPut(i, result)
             result
         )
     )
@@ -16,8 +16,5 @@ fibonacci := method(n,
     fib(n)
 )
 
-"Fibonacci sequence from 0 to 10:" println
-for(i, 0, 10,
-    (fibonacci(i) asString .. " ") print
-)
-"" println
+"Fibonacci sequence:" println
+for(i, 0, 10, fibonacci(i) println)
