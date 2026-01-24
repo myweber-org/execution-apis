@@ -1,27 +1,29 @@
 
-CelsiusToFahrenheit := method(celsius, celsius * 9 / 5 + 32)
-CelsiusToKelvin := method(celsius, celsius + 273.15)
-
-TemperatureConverter := Object clone do(
-    convert := method(value, unitFrom, unitTo,
-        if(unitFrom == "C" and unitTo == "F", return CelsiusToFahrenheit(value))
-        if(unitFrom == "C" and unitTo == "K", return CelsiusToKelvin(value))
-        if(unitFrom == "F" and unitTo == "C", return (value - 32) * 5 / 9)
-        if(unitFrom == "F" and unitTo == "K", return CelsiusToKelvin((value - 32) * 5 / 9))
-        if(unitFrom == "K" and unitTo == "C", return value - 273.15)
-        if(unitFrom == "K" and unitTo == "F", return CelsiusToFahrenheit(value - 273.15))
-        Exception raise("Unsupported conversion from #{unitFrom} to #{unitTo}" interpolate)
-    )
-    
-    formatResult := method(value, fromUnit, toUnit, result,
-        "#{value}°#{fromUnit} = #{result}°#{toUnit}" interpolate
-    )
+Celsius := Object clone do(
+    toFahrenheit := method(self * 9 / 5 + 32)
+    toKelvin := method(self + 273.15)
 )
 
-// Example usage
-converter := TemperatureConverter clone
-result := converter convert(100, "C", "F")
-converter formatResult(100, "C", "F", result) println
-
-result2 := converter convert(212, "F", "K")
-converter formatResult(212, "F", "K", result2) println
+TemperatureConverter := Object clone do(
+    convert := method(value, unit, targetUnit,
+        if(unit == "C",
+            if(targetUnit == "F", return value toFahrenheit)
+            if(targetUnit == "K", return value toKelvin)
+        )
+        if(unit == "F" and targetUnit == "C",
+            return (value - 32) * 5 / 9
+        )
+        if(unit == "K" and targetUnit == "C",
+            return value - 273.15
+        )
+        "Unsupported conversion" raise
+    )
+    
+    displayConversions := method(value, unit,
+        if(unit == "C",
+            f := value toFahrenheit
+            k := value toKelvin
+            "Celsius: #{value}, Fahrenheit: #{f}, Kelvin: #{k}" interpolate println
+        )
+    )
+)
