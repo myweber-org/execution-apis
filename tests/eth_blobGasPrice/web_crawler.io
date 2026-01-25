@@ -57,3 +57,27 @@ WebCrawler := Object clone do(
 crawler := WebCrawler clone
 urls := crawler crawl("http://example.com", 1)
 ("Total URLs visited: " .. urls size) println
+WebCrawler := Object clone do(
+    fetchUrl := method(url,
+        request := URL with(url) fetch
+        if(request isError,
+            return "Error fetching URL: #{request error}" interpolate,
+            return request contents
+        )
+    )
+    
+    extractLinks := method(html,
+        links := List clone
+        doc := SGML parse(html)
+        doc tagsWithName("a") foreach(tag,
+            href := tag attributes at("href")
+            if(href, links append(href))
+        )
+        links
+    )
+)
+
+url := "https://example.com"
+html := WebCrawler fetchUrl(url)
+links := WebCrawler extractLinks(html)
+links foreach(link, link println)
