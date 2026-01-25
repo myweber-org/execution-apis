@@ -39,3 +39,46 @@ FileProcessor := Object clone do(
         )
     )
 )
+FileProcessor := Object clone do(
+    readFile := method(path,
+        try(
+            File with(path) openForReading contents
+        ) catch(Exception,
+            writeln("Error reading file: ", path)
+            nil
+        )
+    )
+    
+    writeFile := method(path, content,
+        try(
+            file := File with(path)
+            file openForUpdating truncateToSize(0)
+            file write(content)
+            file close
+            true
+        ) catch(Exception,
+            writeln("Error writing to file: ", path)
+            false
+        )
+    )
+    
+    appendToFile := method(path, content,
+        try(
+            file := File with(path)
+            file openForAppending
+            file write(content)
+            file close
+            true
+        ) catch(Exception,
+            writeln("Error appending to file: ", path)
+            false
+        )
+    )
+)
+
+processor := FileProcessor clone
+result := processor readFile("input.txt")
+if(result, 
+    processor writeFile("output.txt", result)
+    processor appendToFile("log.txt", "File processed successfully\n")
+)
