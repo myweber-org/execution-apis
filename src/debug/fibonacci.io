@@ -1,20 +1,21 @@
 
-fibonacci := method(n,
+fib := method(n,
     memo := Map clone
     memo atPut(0, 0)
     memo atPut(1, 1)
     
-    compute := method(k,
-        if(memo hasKey(k), return memo at(k))
-        result := compute(k-1) + compute(k-2)
-        memo atPut(k, result)
-        result
+    fibRec := method(k,
+        if(memo hasKey(k),
+            memo at(k),
+            result := fibRec(k-1) + fibRec(k-2)
+            memo atPut(k, result)
+            result
+        )
     )
     
-    compute(n)
+    fibRec(n)
 )
 
-"Fibonacci sequence demonstration" println
 for(i, 0, 10, 
-    ("fibonacci(" .. i .. ") = " .. fibonacci(i)) println
+    fib(i) println
 )
