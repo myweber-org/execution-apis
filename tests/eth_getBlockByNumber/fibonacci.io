@@ -100,3 +100,16 @@ fibonacci := method(n,
 
 "Fibonacci sequence:" println
 for(i, 0, 10, fibonacci(i) println)
+Fibonacci := Object clone do(
+    memo := Map clone
+
+    compute := method(n,
+        if(memo hasKey(n), return memo at(n))
+        if(n <= 1, return n)
+        result := compute(n - 1) + compute(n - 2)
+        memo atPut(n, result)
+        result
+    )
+
+    clearMemo := method(memo empty)
+)
