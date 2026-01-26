@@ -1,20 +1,22 @@
 
-Celsius := Object clone do(
-    toFahrenheit := method(self * 9 / 5 + 32)
-    toKelvin := method(self + 273.15)
-)
+Celsius := Object clone
+Celsius toFahrenheit := method(self * 9 / 5 + 32)
+Celsius toKelvin := method(self + 273.15)
 
-Fahrenheit := Object clone do(
-    toCelsius := method((self - 32) * 5 / 9)
-    toKelvin := method(self toCelsius + 273.15)
-)
+Fahrenheit := Object clone
+Fahrenheit toCelsius := method((self - 32) * 5 / 9)
+Fahrenheit toKelvin := method((self - 32) * 5 / 9 + 273.15)
 
-Kelvin := Object clone do(
-    toCelsius := method(self - 273.15)
-    toFahrenheit := method(self toCelsius * 9 / 5 + 32)
-)
+Kelvin := Object clone
+Kelvin toCelsius := method(self - 273.15)
+Kelvin toFahrenheit := method((self - 273.15) * 9 / 5 + 32)
 
-// Example usage (commented out in actual utility)
-// 25 Celsius toFahrenheit println
-// 98.6 Fahrenheit toCelsius println
-// 300 Kelvin toFahrenheit println
+// Example usage
+"25°C in Fahrenheit: " print
+(25 Celsius toFahrenheit) println
+
+"98.6°F in Celsius: " print
+(98.6 Fahrenheit toCelsius) println
+
+"300K in Celsius: " print
+(300 Kelvin toCelsius) println
