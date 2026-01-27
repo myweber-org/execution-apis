@@ -58,3 +58,28 @@ Kelvin toFahrenheit := method((self - 273.15) * 9 / 5 + 32)
 // 25 Celsius toFahrenheit println  // 77
 // 100 Fahrenheit toCelsius println // 37.77777777777778
 // 300 Kelvin toFahrenheit println  // 80.33
+Celsius := Object clone do(
+    toFahrenheit := method(self * 9 / 5 + 32)
+    toKelvin := method(self + 273.15)
+)
+
+TemperatureConverter := Object clone do(
+    convertCelsius := method(celsiusValue,
+        result := Map clone
+        result atPut("celsius", celsiusValue)
+        result atPut("fahrenheit", celsiusValue toFahrenheit)
+        result atPut("kelvin", celsiusValue toKelvin)
+        result
+    )
+    
+    printConversions := method(celsiusValue,
+        conversions := self convertCelsius(celsiusValue)
+        "Celsius: #{conversions at(\"celsius\")}" println
+        "Fahrenheit: #{conversions at(\"fahrenheit\")}" println
+        "Kelvin: #{conversions at(\"kelvin\")}" println
+    )
+)
+
+// Example usage
+converter := TemperatureConverter clone
+converter printConversions(25)
