@@ -5,7 +5,7 @@ fibonacci := method(n,
     memo atPut(1, 1)
     
     fib := method(x,
-        if(memo hasKey(x), 
+        if(memo hasKey(x),
             memo at(x),
             result := fib(x-1) + fib(x-2)
             memo atPut(x, result)
