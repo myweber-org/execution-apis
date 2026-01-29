@@ -4,19 +4,17 @@ fibonacci := method(n,
     memo atPut(0, 0)
     memo atPut(1, 1)
     
-    fib := block(n,
-        if(memo hasKey(n), return memo at(n))
-        result := fib call(n - 1) + fib call(n - 2)
-        memo atPut(n, result)
-        result
+    fib := method(k,
+        if(memo hasKey(k),
+            memo at(k),
+            result := fib(k-1) + fib(k-2)
+            memo atPut(k, result)
+            result
+        )
     )
     
-    fib call(n)
+    fib(n)
 )
 
-"First 10 Fibonacci numbers:" println
-for(i, 0, 9,
-    fibonacci(i) print
-    " " print
-)
-"" println
+"Fibonacci(10): " print
+fibonacci(10) println
