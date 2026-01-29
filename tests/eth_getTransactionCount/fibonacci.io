@@ -1,22 +1,23 @@
 
-fib := Object clone
-fib memo := Map clone
-
-fib generate := method(n,
-    if (n <= 1, return n)
-    if (fib memo hasKey(n), return fib memo at(n))
+fibonacci := method(n,
+    cache := Map clone
+    cache atPut(0, 0)
+    cache atPut(1, 1)
     
-    result := fib generate(n - 1) + fib generate(n - 2)
-    fib memo atPut(n, result)
-    result
-)
-
-fib printSequence := method(n,
-    for (i, 0, n,
-        fib generate(i) print
-        if (i < n, ", " print)
+    fib := method(idx,
+        if(cache hasKey(idx),
+            cache at(idx),
+            result := fib(idx - 1) + fib(idx - 2)
+            cache atPut(idx, result)
+            result
+        )
     )
-    "" println
+    
+    fib(n)
 )
 
-fib printSequence(15)
+"Fibonacci sequence demonstration" println
+for(i, 0, 10, 
+    result := fibonacci(i)
+    ("F(" .. i .. ") = " .. result) println
+)
