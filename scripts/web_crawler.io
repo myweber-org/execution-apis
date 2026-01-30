@@ -1,36 +1,35 @@
 
-#!/usr/local/bin/io
-
-Url := Object clone do(
-    fetch := method(url,
-        page := URL with(url) fetch
-        if(page isNil, return nil)
-        return page
+WebCrawler := Object clone do(
+    fetchUrl := method(url,
+        urlObj := URL with(url)
+        urlObj fetch
     )
-)
 
-HtmlParser := Object clone do(
-    extractTitle := method(html,
-        if(html isNil, return nil)
-        startTag := html findSeq("<title>")
-        endTag := html findSeq("</title>")
-        if(startTag and endTag,
-            return html slice(startTag + 7, endTag)
+    extractLinks := method(html,
+        links := List clone
+        html split("\n") foreach(line,
+            if(line containsSeq("href="),
+                start := line findSeq("href=") + 6
+                end := line findSeq("\"", start)
+                if(end, links append(line slice(start, end)))
+            )
         )
-        return nil
+        links
     )
-)
 
-Crawler := Object clone do(
     crawl := method(url,
-        pageContent := Url fetch(url)
-        title := HtmlParser extractTitle(pageContent)
-        if(title,
-            writeln("Title: ", title)
+        html := fetchUrl(url)
+        if(html,
+            links := extractLinks(html)
+            links foreach(link, writeln("Found link: ", link))
+            links
         ,
-            writeln("Failed to fetch or parse title from: ", url)
+            writeln("Failed to fetch URL: ", url)
+            nil
         )
     )
 )
 
-Crawler crawl("http://example.com")
+// Example usage
+crawler := WebCrawler clone
+crawler crawl("http://example.com")
