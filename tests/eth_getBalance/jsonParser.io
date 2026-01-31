@@ -90,3 +90,55 @@ JsonParser := Object clone do(
         Exception raise("Unsupported type: " .. obj type)
     )
 )
+JsonParser := Object clone do(
+    parse := method(jsonString,
+        if(jsonString isNil or jsonString isEmpty, return nil)
+        try(
+            doString("(" .. jsonString .. ")")
+        ) catch(e,
+            Exception raise("Invalid JSON: " .. e error)
+        )
+    )
+    
+    stringify := method(obj, pretty := false,
+        if(obj isNil, return "null")
+        
+        if(obj type == "Map",
+            items := list()
+            obj foreach(key, value,
+                items append("\"" .. key .. "\": " .. stringify(value, pretty))
+            )
+            if(pretty,
+                "{\n  " .. items join(",\n  ") .. "\n}"
+            ,
+                "{" .. items join(", ") .. "}"
+            )
+        ) elseif(obj type == "List",
+            items := obj map(v, stringify(v, pretty))
+            if(pretty,
+                "[\n  " .. items join(",\n  ") .. "\n]"
+            ,
+                "[" .. items join(", ") .. "]"
+            )
+        ) elseif(obj type == "Sequence",
+            "\"" .. obj asMutable escape .. "\""
+        ) elseif(obj type == "Number",
+            obj asString
+        ) elseif(obj type == "Nil",
+            "null"
+        ) elseif(obj type == "True" or obj type == "False",
+            obj asString
+        ) else(
+            Exception raise("Unsupported type for JSON serialization: " .. obj type)
+        )
+    )
+    
+    validate := method(jsonString,
+        try(
+            parse(jsonString)
+            true
+        ) catch(e,
+            false
+        )
+    )
+)
