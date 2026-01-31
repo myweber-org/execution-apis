@@ -14,9 +14,4 @@ fib := method(n,
     fibRec(n)
 )
 
-"Fibonacci sequence:" println
-for(i, 0, 10, 1,
-    fib(i) print
-    " " print
-)
-"" println
+for(i, 0, 10, write(fib(i), " "))
