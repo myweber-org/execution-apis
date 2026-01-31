@@ -2,6 +2,7 @@
 FileProcessor := Object clone do(
     readFile := method(path,
         file := File with(path)
+        if(file exists not, return nil)
         file openForReading
         content := file readToEnd
         file close
@@ -10,10 +11,11 @@ FileProcessor := Object clone do(
     
     writeFile := method(path, content,
         file := File with(path)
+        file remove
         file openForUpdating
         file write(content)
         file close
-        true
+        self
     )
     
     appendToFile := method(path, content,
@@ -21,15 +23,16 @@ FileProcessor := Object clone do(
         file openForAppending
         file write(content)
         file close
-        true
+        self
     )
     
     fileExists := method(path,
-        File exists(path)
+        File with(path) exists
     )
     
     getFileSize := method(path,
         file := File with(path)
+        if(file exists not, return 0)
         file size
     )
 )
