@@ -3,7 +3,11 @@ FileProcessor := Object clone do(
     readFile := method(path,
         file := File with(path)
         if(file exists,
-            file openForReading contents,
+            file openForReading
+            content := file readToEnd
+            file close
+            content
+        ,
             Exception raise("File not found: #{path}" interpolate)
         )
     )
@@ -11,33 +15,29 @@ FileProcessor := Object clone do(
     writeFile := method(path, content,
         file := File with(path)
         file remove
-        file openForUpdating write(content) close
+        file openForUpdating
+        file write(content)
+        file close
+        self
     )
     
     appendToFile := method(path, content,
         file := File with(path)
-        file openForAppending write(content) close
+        file openForAppending
+        file write(content)
+        file close
+        self
     )
     
-    fileExists := method(path,
-        File with(path) exists
-    )
-    
-    getFileSize := method(path,
-        file := File with(path)
-        if(file exists, file size, 0)
+    copyFile := method(sourcePath, targetPath,
+        content := self readFile(sourcePath)
+        self writeFile(targetPath, content)
     )
 )
 
 processor := FileProcessor clone
-testPath := "test_output.txt"
-
-if(processor fileExists(testPath) not,
-    processor writeFile(testPath, "Initial content\n")
-)
-
-processor appendToFile(testPath, "Appended line\n")
-
-writeln("File content:")
-writeln(processor readFile(testPath))
-writeln("File size: ", processor getFileSize(testPath), " bytes")
+testContent := "Hello, Io World!\nThis is a test file."
+processor writeFile("test.txt", testContent)
+copiedContent := processor readFile("test.txt")
+processor appendToFile("test.txt", "\nAppended line.")
+processor copyFile("test.txt", "test_copy.txt")
