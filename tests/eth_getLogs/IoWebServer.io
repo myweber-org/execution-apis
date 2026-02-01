@@ -39,4 +39,18 @@ Server := Object clone do(
 
 if(isLaunchScript,
     Server start(8080)
+)#!/usr/bin/env io
+
+WebServer := Object clone do(
+    handleRequest := method(request, response,
+        response setStatus(200)
+        response setHeader("Content-Type", "text/plain")
+        response write("Hello World from Io Web Server!")
+        response close
+    )
 )
+
+server := Server clone setPort(8080) setHandler(WebServer)
+server start
+writeln("Web server running on http://localhost:8080")
+server wait
