@@ -20,3 +20,24 @@ SequencePrinter printSequence := method(count,
 )
 
 SequencePrinter printSequence(15)
+fib := method(n,
+    memo := Map clone
+    memo atPut(0, 0)
+    memo atPut(1, 1)
+    
+    fibHelper := method(n,
+        if(memo hasKey(n), return memo at(n))
+        result := fibHelper(n - 1) + fibHelper(n - 2)
+        memo atPut(n, result)
+        result
+    )
+    
+    fibHelper(n)
+)
+
+"Fibonacci sequence from 0 to 10:" println
+for(i, 0, 10,
+    fib(i) print
+    if(i < 10, ", " print)
+)
+"" println
