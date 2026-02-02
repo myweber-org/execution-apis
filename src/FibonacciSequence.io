@@ -14,7 +14,9 @@ fib := method(n,
     fibRecursive(n)
 )
 
-// Test the implementation
-for(i, 0, 10, 
-    ("Fibonacci(" .. i .. ") = " .. fib(i)) println
+"Fibonacci sequence first 10 numbers:" println
+for(i, 0, 9,
+    fib(i) print
+    " " print
 )
+"" println
