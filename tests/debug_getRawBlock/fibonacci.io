@@ -85,3 +85,8 @@ for(i, 0, 10,
     (fibonacci(i) asString .. " ") print
 )
 "" println
+fib := method(n,
+    if(n <= 1, n, fib(n - 1) + fib(n - 2))
+)
+
+for(i, 0, 10, fib(i) println)
