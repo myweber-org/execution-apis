@@ -14,4 +14,30 @@ FileProcessor := Object clone do(
             if(result, result println)
         )
     )
+)FileProcessor := Object clone do(
+    read := method(path,
+        File with(path) openForReading contents
+    )
+    
+    write := method(path, content,
+        file := File with(path)
+        file remove
+        file openForUpdating write(content) close
+        content
+    )
+    
+    append := method(path, content,
+        file := File with(path)
+        file exists ifFalse(file openForUpdating close)
+        file openForAppending write(content) close
+        content
+    )
+    
+    exists := method(path,
+        File with(path) exists
+    )
+    
+    size := method(path,
+        File with(path) size
+    )
 )
