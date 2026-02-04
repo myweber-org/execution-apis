@@ -68,3 +68,30 @@ FileProcessor := Object clone do(
 )
 
 FileProcessor clone
+FileProcessor := Object clone do(
+    read := method(path,
+        file := File with(path)
+        if(file exists, file readLines, nil)
+    )
+
+    write := method(path, content,
+        file := File with(path)
+        file remove
+        file openForUpdating
+        file write(content)
+        file close
+        true
+    )
+
+    append := method(path, content,
+        file := File with(path)
+        file openForAppending
+        file write(content)
+        file close
+        true
+    )
+
+    exists := method(path,
+        File with(path) exists
+    )
+)
