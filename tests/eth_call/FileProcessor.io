@@ -83,3 +83,40 @@ FileProcessor := Object clone do(
         Map clone atPut("totalLines", lines) atPut("filteredLines", filtered)
     )
 )
+FileProcessor := Object clone do(
+    process := method(path,
+        file := File with(path)
+        if(file exists not, return nil)
+        
+        file openForReading
+        content := file contents
+        file close
+        
+        lines := content split("\n")
+        lines select(line, line size > 0) map(line,
+            line strip split(" ") select(word, word size > 0)
+        ) reduce(total, words,
+            total + words size
+        )
+    )
+    
+    lazyProcess := method(path,
+        lazy := LazySequence clone
+        lazy setGenerator(block(
+            self process(path)
+        ))
+        lazy
+    )
+    
+    batchProcess := method(paths,
+        results := List clone
+        paths foreach(path,
+            result := self process(path)
+            if(result, results append(result))
+            Exception catch(Exception,
+                writeln("Error processing: ", path)
+            )
+        )
+        results
+    )
+)
