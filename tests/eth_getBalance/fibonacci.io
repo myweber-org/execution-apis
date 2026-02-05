@@ -80,3 +80,21 @@ fibonacci := method(n,
 for(i, 0, 10, 
     fibonacci(i) println
 )
+fib := method(n,
+    cache := Map withDefault(0)
+    cache atPut(0, 0)
+    cache atPut(1, 1)
+    
+    fibRec := method(x,
+        if(cache at(x) == 0 and x > 1,
+            cache atPut(x, fibRec(x-1) + fibRec(x-2))
+        )
+        cache at(x)
+    )
+    
+    fibRec(n)
+)
+
+for(i, 0, 10, 
+    fib(i) println
+)
