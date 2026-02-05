@@ -2,47 +2,41 @@
 FileProcessor := Object clone do(
     readFile := method(path,
         file := File with(path)
-        if(file exists,
-            file openForReading contents
-        ,
-            Exception raise("File not found: #{path}" interpolate)
-        )
+        if(file exists not, return nil)
+        file openForReading
+        content := file contents
+        file close
+        content
     )
     
     writeFile := method(path, content,
         file := File with(path)
         file remove
-        file openForUpdating write(content) close
+        file openForUpdating
+        file write(content)
+        file close
         true
     )
     
     appendToFile := method(path, content,
         file := File with(path)
-        file openForAppending write(content) close
+        file openForAppending
+        file write(content)
+        file close
         true
     )
     
     fileExists := method(path,
         File with(path) exists
     )
-    
-    getFileSize := method(path,
-        file := File with(path)
-        if(file exists, file size, 0)
-    )
 )
 
 processor := FileProcessor clone
-testPath := "test_output.txt"
-
-if(processor fileExists(testPath) not,
-    processor writeFile(testPath, "Initial content\n")
+if(processor fileExists("test.txt") not,
+    processor writeFile("test.txt", "Hello, Io!")
 )
 
-processor appendToFile(testPath, "Appended content\n")
-
-fileContent := processor readFile(testPath)
-fileSize := processor getFileSize(testPath)
-
-"File content: #{fileContent}" interpolate println
-"File size: #{fileSize} bytes" interpolate println
+content := processor readFile("test.txt")
+if(content,
+    processor appendToFile("test.txt", "\nAppended line.")
+)
