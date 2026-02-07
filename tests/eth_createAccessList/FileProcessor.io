@@ -33,3 +33,24 @@ FileProcessor := Object clone do(
         result
     )
 )
+FileProcessor := Object clone do(
+    countLines := method(path,
+        file := File with(path) openForReading
+        lines := file readLines size
+        file close
+        lines
+    )
+    
+    filterLines := method(path, pattern,
+        file := File with(path) openForReading
+        matchingLines := file readLines select(line, line contains(pattern))
+        file close
+        matchingLines
+    )
+    
+    processFile := method(path, pattern,
+        totalLines := countLines(path)
+        matchedLines := filterLines(path, pattern)
+        Map clone atPut("total", totalLines) atPut("matched", matchedLines size) atPut("matches", matchedLines)
+    )
+)
