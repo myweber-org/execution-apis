@@ -1,42 +1,34 @@
 
-fib := method(n,
-    memo := Map clone
-    memo atPut(0, 0)
-    memo atPut(1, 1)
-    
-    fibRec := method(k,
-        if(memo hasKey(k), return memo at(k))
-        result := fibRec(k-1) + fibRec(k-2)
-        memo atPut(k, result)
-        result
+fibonacci := method(n,
+    if(n <= 1, return n)
+    return fibonacci(n - 1) + fibonacci(n - 2)
+)
+
+fibonacciMemoized := method(n,
+    if(n <= 1, return n)
+    return fibonacciMemoized(n - 1) + fibonacciMemoized(n - 2)
+)
+
+fibonacciMemoized := fibonacciMemoized clone
+fibonacciMemoized memoized := true
+
+test := method(
+    "Testing standard fibonacci:" println
+    for(i, 0, 10, 
+        ("fibonacci(" .. i .. ") = " .. fibonacci(i)) println
     )
     
-    fibRec(n)
-)
-
-"Fibonacci of 10: " print
-fib(10) println
-
-"Fibonacci of 15: " print
-fib(15) println
-fib := method(n,
-    memo := Map clone
-    memo atPut(0, 0)
-    memo atPut(1, 1)
-    
-    fibRec := method(k,
-        if(memo hasKey(k), return memo at(k))
-        result := fibRec(k-1) + fibRec(k-2)
-        memo atPut(k, result)
-        result
+    "\nTesting memoized fibonacci:" println
+    for(i, 0, 10,
+        ("fibonacciMemoized(" .. i .. ") = " .. fibonacciMemoized(i)) println
     )
     
-    fibRec(n)
+    "\nPerformance comparison:" println
+    startTime := Date secondsToRun(for(i, 0, 30, fibonacci(i)))
+    ("Standard (0-30): " .. startTime .. " seconds") println
+    
+    memoizedTime := Date secondsToRun(for(i, 0, 30, fibonacciMemoized(i)))
+    ("Memoized (0-30): " .. memoizedTime .. " seconds") println
 )
 
-"First 10 Fibonacci numbers:" println
-for(i, 0, 9,
-    fib(i) print
-    " " print
-)
-"" println
+test
