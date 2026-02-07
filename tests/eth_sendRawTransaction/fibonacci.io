@@ -4,35 +4,20 @@ fib := method(n,
     memo atPut(0, 0)
     memo atPut(1, 1)
     
-    fibRec := method(k,
-        if(memo hasKey(k), 
-            return memo at(k)
+    fibRec := method(n,
+        if(memo hasKey(n),
+            memo at(n),
+            result := fibRec(n-1) + fibRec(n-2)
+            memo atPut(n, result)
+            result
         )
-        result := fibRec(k-1) + fibRec(k-2)
-        memo atPut(k, result)
-        result
     )
     
     fibRec(n)
 )
 
-for(i, 0, 10, 
-    fib(i) println
-)
-fib := method(n,
-    cache := Map clone
-    cache atPut(0, 0)
-    cache atPut(1, 1)
-    
-    compute := method(n,
-        if(cache hasKey(n), return cache at(n))
-        result := compute(n-1) + compute(n-2)
-        cache atPut(n, result)
-        result
-    )
-    
-    compute(n)
-)
+"Fibonacci of 10: " print
+fib(10) println
 
-"Fibonacci sequence:" println
-for(i, 0, 10, fib(i) println)
+"Fibonacci of 15: " print
+fib(15) println
