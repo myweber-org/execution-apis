@@ -213,3 +213,40 @@ if(isLaunchScript,
     "\nPretty printed:" println
     parser prettyPrint(parsed) println
 )
+JsonParser := Object clone do(
+    parse := method(jsonString,
+        try(
+            doString("(" .. jsonString .. ")")
+        ) catch(Exception,
+            Exception raise("Invalid JSON: " .. jsonString)
+        )
+    )
+    
+    stringify := method(obj, pretty := false,
+        if(obj isNil, return "null")
+        if(obj isKindOf(Number), return obj asString)
+        if(obj isKindOf(Sequence), return "\"" .. obj .. "\"")
+        if(obj isKindOf(List),
+            result := List clone
+            obj foreach(i, v,
+                result append(stringify(v, pretty))
+            )
+            return "[" .. result join(if(pretty, ",\n ", ", ")) .. "]"
+        )
+        if(obj isKindOf(Map),
+            result := List clone
+            obj keys sort foreach(k,
+                result append("\"" .. k .. "\":" .. 
+                    (if(pretty, " ", "")) .. 
+                    stringify(obj at(k), pretty))
+            )
+            return "{" .. result join(if(pretty, ",\n ", ", ")) .. "}"
+        )
+        Exception raise("Unsupported type for JSON serialization")
+    )
+    
+    prettyPrint := method(jsonString,
+        obj := parse(jsonString)
+        stringify(obj, true)
+    )
+)
