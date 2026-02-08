@@ -210,3 +210,205 @@ JsonParser := Object clone do(
         )
     )
 )
+JsonParser := Object clone do(
+    parse := method(jsonString,
+        if(jsonString isNil or jsonString isEmpty,
+            Exception raise("Empty JSON string")
+        )
+        
+        // Remove whitespace
+        jsonString := jsonString strip
+        
+        // Parse based on first character
+        if(jsonString beginsWithSeq("{"),
+            parseObject(jsonString)
+        elseif(jsonString beginsWithSeq("["),
+            parseArray(jsonString)
+        elseif(jsonString beginsWithSeq("\""),
+            parseString(jsonString)
+        elseif(jsonString asLowercase == "true",
+            true
+        elseif(jsonString asLowercase == "false",
+            false
+        elseif(jsonString asLowercase == "null",
+            nil
+        elseif(jsonString containsSeq("."),
+            jsonString asNumber
+        else,
+            jsonString asNumber
+        )
+    )
+    
+    parseObject := method(jsonString,
+        result := Map clone
+        content := jsonString slice(1, -1) strip
+        
+        if(content isEmpty, return result)
+        
+        while(content size > 0,
+            // Find key
+            keyStart := content findSeq("\"")
+            if(keyStart == -1, Exception raise("Invalid object: missing key"))
+            
+            keyEnd := content findSeq("\"", keyStart + 1)
+            if(keyEnd == -1, Exception raise("Invalid object: unclosed key"))
+            
+            key := content slice(keyStart + 1, keyEnd)
+            content = content slice(keyEnd + 1) strip
+            
+            // Find colon
+            if(content beginsWithSeq(":") not,
+                Exception raise("Invalid object: missing colon after key")
+            )
+            content = content slice(1) strip
+            
+            // Find value
+            valueEnd := findValueEnd(content)
+            valueStr := content slice(0, valueEnd)
+            value := parse(valueStr)
+            
+            result atPut(key, value)
+            
+            // Move to next pair or end
+            content = content slice(valueEnd) strip
+            if(content beginsWithSeq(","),
+                content = content slice(1) strip
+            )
+        )
+        
+        result
+    )
+    
+    parseArray := method(jsonString,
+        result := List clone
+        content := jsonString slice(1, -1) strip
+        
+        if(content isEmpty, return result)
+        
+        while(content size > 0,
+            valueEnd := findValueEnd(content)
+            valueStr := content slice(0, valueEnd)
+            value := parse(valueStr)
+            
+            result append(value)
+            
+            content = content slice(valueEnd) strip
+            if(content beginsWithSeq(","),
+                content = content slice(1) strip
+            )
+        )
+        
+        result
+    )
+    
+    parseString := method(jsonString,
+        // Remove quotes and handle escapes
+        content := jsonString slice(1, -1)
+        content replaceSeq("\\\"", "\"") replaceSeq("\\\\", "\\")
+    )
+    
+    findValueEnd := method(str,
+        str = str strip
+        if(str beginsWithSeq("{"),
+            findMatchingBrace(str, "{", "}")
+        elseif(str beginsWithSeq("["),
+            findMatchingBrace(str, "[", "]")
+        elseif(str beginsWithSeq("\""),
+            findStringEnd(str)
+        else,
+            findSimpleValueEnd(str)
+        )
+    )
+    
+    findMatchingBrace := method(str, open, close,
+        count := 1
+        i := 1
+        while(i < str size and count > 0,
+            if(str at(i) asCharacter == open,
+                count = count + 1
+            elseif(str at(i) asCharacter == close,
+                count = count - 1
+            elseif(str at(i) asCharacter == "\"" and str at(i-1) asCharacter != "\\",
+                // Skip strings
+                stringEnd := findStringEnd(str slice(i))
+                i = i + stringEnd - 1
+            )
+            i = i + 1
+        )
+        i
+    )
+    
+    findStringEnd := method(str,
+        i := 1
+        while(i < str size,
+            if(str at(i) asCharacter == "\"" and str at(i-1) asCharacter != "\\",
+                return i + 1
+            )
+            i = i + 1
+        )
+        Exception raise("Unclosed string")
+    )
+    
+    findSimpleValueEnd := method(str,
+        commaPos := str findSeq(",")
+        endPos := str findSeq("}")
+        bracketPos := str findSeq("]")
+        
+        positions := list(commaPos, endPos, bracketPos) select(pos != -1)
+        if(positions isEmpty, return str size)
+        
+        positions min
+    )
+    
+    stringify := method(obj, indent := 0,
+        if(obj isNil, return "null")
+        if(obj type == "Boolean", return if(obj, "true", "false"))
+        if(obj type == "Number", return obj asString)
+        if(obj type == "Sequence", return "\"" .. obj .. "\"")
+        
+        if(obj type == "List",
+            if(obj isEmpty, return "[]")
+            
+            result := "[\n"
+            obj foreach(i, item,
+                result = result .. ("  " repeated(indent + 1)) .. stringify(item, indent + 1)
+                if(i < obj size - 1, result = result .. ",")
+                result = result .. "\n"
+            )
+            result = result .. ("  " repeated(indent)) .. "]"
+            return result
+        )
+        
+        if(obj type == "Map",
+            if(obj size == 0, return "{}")
+            
+            result := "{\n"
+            keys := obj keys sort
+            keys foreach(i, key,
+                result = result .. ("  " repeated(indent + 1)) .. "\"" .. key .. "\": " .. 
+                         stringify(obj at(key), indent + 1)
+                if(i < keys size - 1, result = result .. ",")
+                result = result .. "\n"
+            )
+            result = result .. ("  " repeated(indent)) .. "}"
+            return result
+        )
+        
+        Exception raise("Unsupported type for JSON serialization: " .. obj type)
+    )
+)
+
+// Example usage
+if(isLaunchScript,
+    parser := JsonParser clone
+    
+    testJson := "{\"name\": \"John\", \"age\": 30, \"hobbies\": [\"reading\", \"coding\"]}"
+    
+    parsed := parser parse(testJson)
+    "Parsed object:" println
+    parsed asJson println
+    
+    "\nSerialized back:" println
+    serialized := parser stringify(parsed)
+    serialized println
+)
