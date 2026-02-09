@@ -69,3 +69,22 @@ for(i, 0, 9,
     " " print
 )
 "" println
+fibonacci := method(n,
+    cache := Map withDefault(0)
+    cache atPut(0, 0)
+    cache atPut(1, 1)
+    
+    fib := method(n,
+        if(cache hasKey(n),
+            cache at(n),
+            result := fib(n-1) + fib(n-2)
+            cache atPut(n, result)
+            result
+        )
+    )
+    
+    fib(n)
+)
+
+"Testing fibonacci sequence:" println
+for(i, 0, 10, fibonacci(i) println)
