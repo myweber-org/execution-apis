@@ -16,9 +16,4 @@ fib := method(n,
     fibRecursive(n)
 )
 
-"Fibonacci sequence:" println
-for(i, 0, 10, 
-    fib(i) print
-    " " print
-)
-"" println
+for(i, 0, 10, fib(i) println)
