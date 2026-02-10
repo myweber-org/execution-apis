@@ -76,3 +76,28 @@ if(content,
     content println
     ("File size: " .. processor getFileSize(testPath) .. " bytes") println
 )
+FileProcessor := Object clone do(
+    readCSV := method(path,
+        file := File with(path) openForReading
+        lines := file readLines map(line, line split(","))
+        file close
+        lines
+    )
+
+    writeCSV := method(path, data,
+        file := File with(path) openForUpdating
+        data foreach(row,
+            line := row join(",")
+            file write(line, "\n")
+        )
+        file close
+    )
+
+    filterRows := method(data, columnIndex, value,
+        data select(row, row at(columnIndex) == value)
+    )
+
+    getColumn := method(data, columnIndex,
+        data map(row, row at(columnIndex))
+    )
+)
