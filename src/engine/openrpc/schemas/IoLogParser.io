@@ -35,4 +35,45 @@ sampleLog := "INFO: Application started\nERROR: File not found\nWARNING: Memory 
 parsed := parser parseLog(sampleLog)
 analysis := parser analyzeLog(parsed)
 report := parser generateReport(analysis)
-report println
+report printlnLogParser := Object clone do(
+    parseFile := method(filePath,
+        lines := File with(filePath) openForReading readLines
+        lines map(line,
+            parts := line split(" ")
+            Map with(
+                "timestamp", parts at(0),
+                "level", parts at(1),
+                "message", parts join(" ", 2)
+            )
+        )
+    )
+
+    filterByLevel := method(logs, level,
+        logs select(log, log at("level") == level)
+    )
+
+    countByLevel := method(logs,
+        counts := Map clone
+        logs foreach(log,
+            level := log at("level")
+            counts atPut(level, (counts at(level) ? 0) + 1)
+        )
+        counts
+    )
+)
+
+parser := LogParser clone
+sampleLogs := list(
+    "2023-10-01T10:00:00 INFO System started",
+    "2023-10-01T10:01:00 WARN Low disk space",
+    "2023-10-01T10:02:00 ERROR Database connection failed",
+    "2023-10-01T10:03:00 INFO User login successful"
+)
+
+parsed := parser parseFile("sample.log")
+errorLogs := parser filterByLevel(parsed, "ERROR")
+levelCounts := parser countByLevel(parsed)
+
+"Parsed #{parsed size} log entries" println
+"Found #{errorLogs size} error logs" println
+"Level distribution: #{levelCounts}" println
