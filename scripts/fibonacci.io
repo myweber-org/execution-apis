@@ -18,3 +18,19 @@ fib := method(n,
 
 "Fibonacci of 10: " print
 fib(10) println
+fib := method(n,
+    memo := Map clone
+    memo atPut(0, 0)
+    memo atPut(1, 1)
+    
+    compute := block(n,
+        if(memo hasKey(n), return memo at(n))
+        result := compute(n-1) + compute(n-2)
+        memo atPut(n, result)
+        result
+    )
+    
+    compute(n)
+)
+
+fib(10) println
