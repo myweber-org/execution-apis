@@ -122,3 +122,22 @@ for(i, 0, 9,
     " " print
 )
 "" println
+fib := method(n,
+    cache := Map clone
+    cache atPut(0, 0)
+    cache atPut(1, 1)
+    
+    fibRecursive := method(n,
+        if(cache hasKey(n), return cache at(n))
+        result := fibRecursive(n-1) + fibRecursive(n-2)
+        cache atPut(n, result)
+        result
+    )
+    
+    fibRecursive(n)
+)
+
+// Example usage
+0 to(10) foreach(i,
+    fib(i) println
+)
