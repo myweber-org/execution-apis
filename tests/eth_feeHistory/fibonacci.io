@@ -1,51 +1,4 @@
 
-fib := method(n,
-    memo := Map clone
-    memo atPut(0, 0)
-    memo atPut(1, 1)
-    
-    fibRec := method(k,
-        if(memo hasKey(k), return memo at(k))
-        result := fibRec(k-1) + fibRec(k-2)
-        memo atPut(k, result)
-        result
-    )
-    
-    fibRec(n)
-)
-
-"Fibonacci numbers:" println
-for(i, 0, 10, 
-    (fib(i) asString .. ", ") print
-)
-"" println
-fib := method(n,
-    cache := Map clone
-    cache atPut(0, 0)
-    cache atPut(1, 1)
-    
-    fibRec := method(k,
-        if(cache hasKey(k), return cache at(k))
-        result := fibRec(k-1) + fibRec(k-2)
-        cache atPut(k, result)
-        result
-    )
-    
-    fibRec(n)
-)
-
-for(i, 0, 10, write(fib(i), " "))
-fibonacci := method(n,
-    if(n <= 1, return n)
-    return fibonacci(n - 1) + fibonacci(n - 2)
-)
-
-"Fibonacci sequence first 10 terms:" println
-for(i, 0, 9,
-    fibonacci(i) print
-    " " print
-)
-"" println
 fibonacci := method(n,
     memo := Map clone
     memo atPut(0, 0)
@@ -63,28 +16,8 @@ fibonacci := method(n,
     fib(n)
 )
 
-"Fibonacci sequence first 10 numbers:" println
-for(i, 0, 9,
-    fibonacci(i) print
-    " " print
+"Fibonacci sequence:" println
+for(i, 0, 10,
+    (fibonacci(i) asString .. ", ") print
 )
 "" println
-fibonacci := method(n,
-    cache := Map withDefault(0)
-    cache atPut(0, 0)
-    cache atPut(1, 1)
-    
-    fib := method(n,
-        if(cache hasKey(n),
-            cache at(n),
-            result := fib(n-1) + fib(n-2)
-            cache atPut(n, result)
-            result
-        )
-    )
-    
-    fib(n)
-)
-
-"Testing fibonacci sequence:" println
-for(i, 0, 10, fibonacci(i) println)
