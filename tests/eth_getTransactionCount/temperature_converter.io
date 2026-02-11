@@ -41,3 +41,17 @@ TemperatureConverter convert := method(value, fromUnit, toUnit,
 // Example usage
 // result := TemperatureConverter convert(100, "C", "F")
 // result println
+CelsiusToFahrenheit := method(celsius,
+    (celsius * 9/5) + 32
+)
+
+main := method(
+    "Enter Celsius temperature: " print
+    input := File standardInput readLine asNumber
+    fahrenheit := CelsiusToFahrenheit(input)
+    ("Temperature in Fahrenheit: " .. fahrenheit) println
+)
+
+if(isLaunchScript,
+    main()
+)
