@@ -21,3 +21,14 @@ fib(10) println
 
 "Fibonacci of 15: " print
 fib(15) println
+fib := Object clone
+fib memo := Map clone
+fib generate := method(n,
+    if (memo hasKey(n), return memo at(n))
+    if (n <= 1, return n)
+    result := generate(n - 1) + generate(n - 2)
+    memo atPut(n, result)
+    result
+)
+
+fib generate(10) println
