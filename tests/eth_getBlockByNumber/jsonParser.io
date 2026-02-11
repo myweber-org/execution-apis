@@ -129,3 +129,165 @@ JsonParser := Object clone do(
         result
     )
 )
+JsonParser := Object clone do(
+    parse := method(jsonString,
+        if(jsonString isNil or jsonString isEmpty,
+            Exception raise("Empty JSON string")
+        )
+        
+        // Remove whitespace
+        cleanString := jsonString asMutable strip
+        
+        // Parse based on first character
+        if(cleanString beginsWithSeq("{"),
+            parseObject(cleanString)
+        elseif(cleanString beginsWithSeq("["),
+            parseArray(cleanString)
+        else,
+            parseValue(cleanString)
+        )
+    )
+    
+    parseObject := method(str,
+        result := Map clone
+        content := str exSlice(1, -1) strip
+        
+        if(content isEmpty, return result)
+        
+        while(content size > 0,
+            // Find key
+            quoteIndex := content findSeq("\"")
+            if(quoteIndex isNil, Exception raise("Invalid object key"))
+            
+            endQuoteIndex := content findSeq("\"", quoteIndex + 1)
+            key := content exSlice(quoteIndex + 1, endQuoteIndex)
+            
+            // Find colon after key
+            colonIndex := content findSeq(":", endQuoteIndex + 1)
+            if(colonIndex isNil, Exception raise("Missing colon after key"))
+            
+            // Parse value
+            valueStart := colonIndex + 1
+            valueStr := content exSlice(valueStart) strip
+            valueResult := parseValue(valueStr)
+            
+            // Store in map
+            result atPut(key, valueResult at("value"))
+            
+            // Move to next pair or end
+            remaining := valueStr exSlice(valueResult at("consumed")) strip
+            if(remaining beginsWithSeq(","),
+                content := remaining exSlice(1) strip
+            else,
+                content := ""
+            )
+        )
+        
+        result
+    )
+    
+    parseArray := method(str,
+        result := List clone
+        content := str exSlice(1, -1) strip
+        
+        if(content isEmpty, return result)
+        
+        while(content size > 0,
+            // Parse array element
+            valueResult := parseValue(content)
+            result append(valueResult at("value"))
+            
+            // Move to next element or end
+            remaining := content exSlice(valueResult at("consumed")) strip
+            if(remaining beginsWithSeq(","),
+                content := remaining exSlice(1) strip
+            else,
+                content := ""
+            )
+        )
+        
+        result
+    )
+    
+    parseValue := method(str,
+        if(str beginsWithSeq("\""),
+            parseString(str)
+        elseif(str beginsWithSeq("{"),
+            parseObject(str)
+        elseif(str beginsWithSeq("["),
+            parseArray(str)
+        elseif(str beginsWithSeq("true"),
+            Map clone atPut("value", true) atPut("consumed", 4)
+        elseif(str beginsWithSeq("false"),
+            Map clone atPut("value", false) atPut("consumed", 5)
+        elseif(str beginsWithSeq("null"),
+            Map clone atPut("value", nil) atPut("consumed", 4)
+        else,
+            parseNumber(str)
+        )
+    )
+    
+    parseString := method(str,
+        endQuote := str findSeq("\"", 1)
+        if(endQuote isNil, Exception raise("Unterminated string"))
+        
+        value := str exSlice(1, endQuote)
+        Map clone atPut("value", value) atPut("consumed", endQuote + 1)
+    )
+    
+    parseNumber := method(str,
+        i := 0
+        while(i < str size and (str at(i) isDigit or str at(i) == "." or str at(i) == "-" or str at(i) == "e" or str at(i) == "E"),
+            i = i + 1
+        )
+        
+        numStr := str exSlice(0, i)
+        if(numStr containsSeq("."),
+            value := numStr asNumber
+        else,
+            value := numStr asNumber
+        )
+        
+        Map clone atPut("value", value) atPut("consumed", i)
+    )
+    
+    prettyPrint := method(obj, indent := 0,
+        if(obj isKindOf(Map),
+            "{\n" \
+            .. obj keys map(k, 
+                "  " repeated(indent + 1) \
+                .. "\"" .. k .. "\": " \
+                .. prettyPrint(obj at(k), indent + 1)
+            ) join(",\n") \
+            .. "\n" .. "  " repeated(indent) .. "}"
+        elseif(obj isKindOf(List),
+            "[\n" \
+            .. obj map(v, 
+                "  " repeated(indent + 1) \
+                .. prettyPrint(v, indent + 1)
+            ) join(",\n") \
+            .. "\n" .. "  " repeated(indent) .. "]"
+        elseif(obj isKindOf(Sequence),
+            "\"" .. obj .. "\""
+        elseif(obj isNil,
+            "null"
+        else,
+            obj asString
+        )
+    )
+)
+
+// Example usage
+if(isLaunchScript,
+    jsonString := "{\"name\": \"test\", \"values\": [1, 2, 3], \"active\": true}"
+    
+    parser := JsonParser clone
+    parsed := parser parse(jsonString)
+    
+    "Parsed object:" println
+    parsed prettyPrint println
+    
+    "\nAccess values:" println
+    "Name: " .. (parsed at("name")) println
+    "First value: " .. (parsed at("values") at(0)) println
+)
