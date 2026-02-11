@@ -18,3 +18,11 @@ fetchTitle := method(url,
 
 result := fetchTitle(URL)
 result println
+URL := "https://example.com"
+html := URL fetch asString
+"Fetched #{html size} bytes from #{URL}" println
+
+doc := html parseHTML
+links := doc links
+"Found #{links size} links:" println
+links foreach(link, link println)
