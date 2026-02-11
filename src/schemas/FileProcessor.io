@@ -57,3 +57,27 @@ FileProcessor := Object clone do(
         File with(path) size
     )
 )
+FileProcessor := Object clone do(
+    cache := Map clone
+
+    processFile := method(path,
+        if(cache hasKey(path),
+            cache at(path),
+            content := File with(path) openForReading contents
+            cache atPut(path, content)
+            content
+        )
+    )
+
+    clearCache := method(
+        cache removeAll
+    )
+
+    getCacheSize := method(
+        cache size
+    )
+)
+
+processor := FileProcessor clone
+result := processor processFile("data.txt")
+processor clearCache
