@@ -4,108 +4,14 @@ fibonacci := method(n,
     memo atPut(0, 0)
     memo atPut(1, 1)
     
-    fib := method(x,
-        if(memo hasKey(x),
-            memo at(x),
-            result := fib(x-1) + fib(x-2)
-            memo atPut(x, result)
-            result
-        )
-    )
-    
-    fib(n)
-)
-
-"Fibonacci sequence:" println
-for(i, 0, 10,
-    (fibonacci(i) asString .. ", ") print
-)
-"" println
-fibonacci := method(n,
-    cache := Map clone
-    cache atPut(0, 0)
-    cache atPut(1, 1)
-    
     fib := method(i,
-        if(cache hasKey(i), 
-            return cache at(i)
+        memo hasKey(i) ifFalse(
+            memo atPut(i, fib(i-1) + fib(i-2))
         )
-        result := fib(i-1) + fib(i-2)
-        cache atPut(i, result)
-        result
+        memo at(i)
     )
     
     fib(n)
 )
 
-"First 10 Fibonacci numbers:" println
-for(i, 0, 9,
-    fibonacci(i) print
-    " " print
-)
-"" println
-fibonacci := method(n,
-    cache := Map clone
-    cache atPut(0, 0)
-    cache atPut(1, 1)
-    
-    fib := method(index,
-        if(cache hasKey(index),
-            cache at(index),
-            result := fib(index - 1) + fib(index - 2)
-            cache atPut(index, result)
-            result
-        )
-    )
-    
-    fib(n)
-)
-
-"First 10 Fibonacci numbers:" println
-for(i, 0, 9,
-    fibonacci(i) print
-    " " print
-)
-"" println
-fibonacci := method(n,
-    cache := Map clone
-    cache atPut(0, 0)
-    cache atPut(1, 1)
-    
-    fib := method(k,
-        if(cache hasKey(k),
-            cache at(k),
-            result := fib(k-1) + fib(k-2)
-            cache atPut(k, result)
-            result
-        )
-    )
-    
-    fib(n)
-)
-
-"Fibonacci of 10: " print
-fibonacci(10) println
-fib := method(n,
-    cache := Map clone
-    cache atPut(0, 0)
-    cache atPut(1, 1)
-    
-    fibRec := method(k,
-        if(cache hasKey(k),
-            cache at(k),
-            result := fibRec(k-1) + fibRec(k-2)
-            cache atPut(k, result)
-            result
-        )
-    )
-    
-    fibRec(n)
-)
-
-"First 10 Fibonacci numbers:" println
-for(i, 0, 9,
-    fib(i) print
-    " " print
-)
-"" println
+for(i, 0, 20, fibonacci(i) println)
