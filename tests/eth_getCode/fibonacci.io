@@ -1,14 +1,14 @@
 
 fib := method(n,
-    memo := Map clone
-    memo atPut(0, 0)
-    memo atPut(1, 1)
+    cache := Map clone
+    cache atPut(0, 0)
+    cache atPut(1, 1)
     
     fibRec := method(k,
-        if(memo hasKey(k),
-            memo at(k),
+        if(cache hasKey(k),
+            cache at(k),
             result := fibRec(k-1) + fibRec(k-2)
-            memo atPut(k, result)
+            cache atPut(k, result)
             result
         )
     )
@@ -16,38 +16,4 @@ fib := method(n,
     fibRec(n)
 )
 
-"Fibonacci of 10: " print
-fib(10) println
-
-"Fibonacci of 15: " print
-fib(15) println
-fib := Object clone
-fib memo := Map clone
-fib generate := method(n,
-    if (memo hasKey(n), return memo at(n))
-    if (n <= 1, return n)
-    result := generate(n - 1) + generate(n - 2)
-    memo atPut(n, result)
-    result
-)
-
-fib generate(10) println
-fibonacci := method(n,
-    memo := Map clone
-    memo atPut(0, 0)
-    memo atPut(1, 1)
-    
-    fib := method(i,
-        if(memo hasKey(i),
-            memo at(i),
-            result := fib(i-1) + fib(i-2)
-            memo atPut(i, result)
-            result
-        )
-    )
-    
-    fib(n)
-)
-
-"Fibonacci sequence:" println
-for(i, 0, 10, fibonacci(i) println)
+for(i, 0, 10, writeln("fib(", i, ") = ", fib(i)))
