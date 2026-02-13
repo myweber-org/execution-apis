@@ -131,3 +131,15 @@ fib := method(n,
 )
 
 for(i, 0, 10, write(fib(i), " "))
+fibonacci := method(n,
+    if(n == 0, return 0)
+    if(n == 1, return 1)
+    return fibonacci(n-1) + fibonacci(n-2)
+)
+
+"Fibonacci sequence up to 10:" println
+for(i, 0, 10,
+    fibonacci(i) print
+    " " print
+)
+"" println
