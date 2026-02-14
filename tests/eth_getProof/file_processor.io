@@ -14,7 +14,6 @@ FileProcessor := Object clone do(
     
     writeFile := method(path, content,
         file := File with(path)
-        file remove
         file openForUpdating
         file write(content)
         file close
@@ -29,15 +28,14 @@ FileProcessor := Object clone do(
         self
     )
     
-    copyFile := method(sourcePath, targetPath,
+    copyFile := method(sourcePath, destPath,
         content := self readFile(sourcePath)
-        self writeFile(targetPath, content)
+        self writeFile(destPath, content)
     )
 )
 
 processor := FileProcessor clone
 testContent := "Hello, Io World!\nThis is a test file."
-processor writeFile("test.txt", testContent)
-copiedContent := processor readFile("test.txt")
-processor appendToFile("test.txt", "\nAppended line.")
-processor copyFile("test.txt", "test_copy.txt")
+processor writeFile("test_output.txt", testContent)
+copiedContent := processor readFile("test_output.txt")
+("Copied content: " .. copiedContent) println
