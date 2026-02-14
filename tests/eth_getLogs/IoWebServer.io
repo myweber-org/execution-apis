@@ -53,4 +53,34 @@ WebServer := Object clone do(
 server := Server clone setPort(8080) setHandler(WebServer)
 server start
 writeln("Web server running on http://localhost:8080")
-server wait
+server wait#!/usr/bin/env io
+
+WebRequest := Object clone do(
+    handleSocket := method(aSocket,
+        aSocket streamReadNextChunk
+        request := aSocket readBuffer
+        ("Received request: " .. request) println
+
+        response := "HTTP/1.1 200 OK\r\n" ..
+                    "Content-Type: text/plain\r\n" ..
+                    "Connection: close\r\n" ..
+                    "\r\n" ..
+                    "Hello, World from Io!"
+
+        aSocket write(response)
+        aSocket close
+    )
+)
+
+server := Server clone do(
+    setPort(8080)
+    handleSocket := method(aSocket,
+        WebRequest clone asyncSend(handleSocket(aSocket))
+    )
+)
+
+"Starting web server on port 8080" println
+server start
+"Server is running. Press Ctrl+C to stop." println
+
+while (true, yield)
