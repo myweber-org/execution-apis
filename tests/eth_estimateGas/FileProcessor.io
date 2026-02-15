@@ -104,3 +104,22 @@ FileProcessor := Object clone do(
             atPut("path", file path)
     )
 )
+FileProcessor := Object clone do(
+    readFile := method(path,
+        File with(path) openForReading contents
+    )
+    
+    writeFile := method(path, content,
+        File with(path) openForUpdating write(content) close
+    )
+    
+    countLines := method(path,
+        content := readFile(path)
+        if(content, content split("\n") size, 0)
+    )
+    
+    process := method(path,
+        lines := countLines(path)
+        "Processed #{path}: #{lines} lines" interpolate
+    )
+)
