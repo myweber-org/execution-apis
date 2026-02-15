@@ -59,3 +59,22 @@ for(i, 0, 9,
     " " print
 )
 "" println
+fib := method(n,
+    cache := Map clone
+    cache atPut(0, 0)
+    cache atPut(1, 1)
+    
+    fibHelper := method(k,
+        if(cache hasKey(k),
+            cache at(k),
+            result := fibHelper(k-1) + fibHelper(k-2)
+            cache atPut(k, result)
+            result
+        )
+    )
+    
+    fibHelper(n)
+)
+
+"Fibonacci sequence:" println
+for(i, 0, 10, fib(i) println)
