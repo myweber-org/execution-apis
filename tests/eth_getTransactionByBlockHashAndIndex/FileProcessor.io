@@ -26,3 +26,22 @@ FileProcessor := Object clone do(
         File with(path) exists
     )
 )
+FileProcessor := Object clone do(
+    readLines := method(path,
+        file := File with(path)
+        if(file exists not, return nil)
+        file openForReading
+        lines := file readLines
+        file close
+        lines
+    )
+
+    filterLines := method(lines, pattern,
+        lines select(line, line contains(pattern))
+    )
+
+    processFile := method(path, pattern,
+        lines := self readLines(path)
+        if(lines, self filterLines(lines, pattern), [])
+    )
+)
