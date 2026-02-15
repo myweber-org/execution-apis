@@ -27,3 +27,23 @@ Kelvin toFahrenheit := method(self toCelsius * 9 / 5 + 32)
 // 25 Celsius toFahrenheit println
 // 98.6 Fahrenheit toCelsius println
 // 300 Kelvin toFahrenheit println
+CelsiusToFahrenheit := method(celsius, celsius * 9 / 5 + 32)
+CelsiusToKelvin := method(celsius, celsius + 273.15)
+
+convertTemperatures := method(celsiusList,
+    celsiusList map(celsius,
+        Map clone atPut("celsius", celsius) \
+               atPut("fahrenheit", CelsiusToFahrenheit(celsius)) \
+               atPut("kelvin", CelsiusToKelvin(celsius))
+    )
+)
+
+// Example usage
+sampleTemperatures := list(-40, 0, 25, 100)
+converted := convertTemperatures(sampleTemperatures)
+
+converted foreach(tempMap,
+    writeln(tempMap at("celsius"), "°C = ", 
+            tempMap at("fahrenheit"), "°F = ",
+            tempMap at("kelvin"), "K")
+)
