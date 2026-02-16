@@ -57,3 +57,22 @@ TemperatureConverter convert := method(value, fromUnit, toUnit,
 // converter := TemperatureConverter clone
 // converter convert(100, "C", "F") println  // 212
 // converter convert(32, "F", "K") println   // 273.15
+Celsius := Object clone
+Celsius toFahrenheit := method(self * 9 / 5 + 32)
+Celsius toKelvin := method(self + 273.15)
+
+Fahrenheit := Object clone
+Fahrenheit toCelsius := method((self - 32) * 5 / 9)
+Fahrenheit toKelvin := method((self - 32) * 5 / 9 + 273.15)
+
+Kelvin := Object clone
+Kelvin toCelsius := method(self - 273.15)
+Kelvin toFahrenheit := method((self - 273.15) * 9 / 5 + 32)
+
+// Example usage
+/*
+celsiusValue := 25
+celsiusValue println
+celsiusValue toFahrenheit println
+celsiusValue toKelvin println
+*/
