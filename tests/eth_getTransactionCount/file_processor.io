@@ -43,3 +43,24 @@ processor processFile("test.txt")
 processor processFile("missing.txt")
 stats := processor getStats
 stats at("logs") foreach(log, log println)
+FileProcessor := Object clone do(
+    readCSV := method(path,
+        file := File with(path) openForReading
+        lines := file readLines map(line, line split(","))
+        file close
+        lines
+    )
+
+    writeCSV := method(path, data,
+        file := File with(path) openForUpdating
+        data foreach(row,
+            line := row join(",")
+            file write(line, "\n")
+        )
+        file close
+    )
+
+    filterRows := method(data, columnIndex, value,
+        data select(row, row at(columnIndex) asString == value asString)
+    )
+)
