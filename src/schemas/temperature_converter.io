@@ -19,3 +19,19 @@ TemperatureConverter convert := method(celsiusValue,
 // result := converter convert(25)
 // result at("fahrenheit") println  // Outputs 77
 // result at("kelvin") println      // Outputs 298.15
+CelsiusToFahrenheit := method(celsius,
+    (celsius * 9 / 5) + 32
+)
+
+FahrenheitToCelsius := method(fahrenheit,
+    (fahrenheit - 32) * 5 / 9
+)
+
+// Example usage
+celsiusTemp := 25
+fahrenheitTemp := CelsiusToFahrenheit(celsiusTemp)
+convertedBack := FahrenheitToCelsius(fahrenheitTemp)
+
+("Original Celsius: " .. celsiusTemp) println
+("Converted to Fahrenheit: " .. fahrenheitTemp) println
+("Converted back to Celsius: " .. convertedBack) println
