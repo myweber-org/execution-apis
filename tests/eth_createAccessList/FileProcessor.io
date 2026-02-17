@@ -1,56 +1,32 @@
 
 FileProcessor := Object clone do(
-    countLines := method(path,
-        file := File with(path) openForReading
-        lines := file readLines size
-        file close
-        lines
-    )
-    
-    wordFrequency := method(path,
-        file := File with(path) openForReading
-        content := file readContents
-        file close
-        
-        words := content asLowercase split(" ", "\\W+") select(size > 0)
-        frequency := Map clone
-        words foreach(word,
-            frequency atPut(word, frequency at(word) ifNilEval(0) + 1)
+    readFile := method(path,
+        file := File with(path)
+        if(file exists,
+            file openForReading contents
+        ,
+            Exception raise("File not found: #{path}" interpolate)
         )
-        frequency
     )
     
-    processFile := method(path,
-        lines := self countLines(path)
-        freq := self wordFrequency(path)
-        topWords := freq keys sortBy(key, freq at(key)) reverse slice(0, 4)
-        
-        result := Map clone
-        result atPut("path", path)
-        result atPut("totalLines", lines)
-        result atPut("totalWords", freq size)
-        result atPut("topWords", topWords map(word, list(word, freq at(word))))
-        result
-    )
-)
-FileProcessor := Object clone do(
-    countLines := method(path,
-        file := File with(path) openForReading
-        lines := file readLines size
-        file close
-        lines
+    writeFile := method(path, content,
+        file := File with(path)
+        file remove
+        file openForUpdating write(content) close
+        content size
     )
     
-    filterLines := method(path, pattern,
-        file := File with(path) openForReading
-        matchingLines := file readLines select(line, line contains(pattern))
-        file close
-        matchingLines
+    appendToFile := method(path, content,
+        file := File with(path)
+        file exists ifFalse(
+            file openForUpdating write("") close
+        )
+        file openForAppending write(content) close
+        content size
     )
     
-    processFile := method(path, pattern,
-        totalLines := countLines(path)
-        matchedLines := filterLines(path, pattern)
-        Map clone atPut("total", totalLines) atPut("matched", matchedLines size) atPut("matches", matchedLines)
+    fileSize := method(path,
+        file := File with(path)
+        file exists ifTrue(file size) ifFalse(0)
     )
 )
