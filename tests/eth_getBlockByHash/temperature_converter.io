@@ -24,3 +24,20 @@ TemperatureConverter := Object clone do(
 // Example usage
 converter := TemperatureConverter clone
 converter printConversions(25)
+Celsius := Object clone
+Celsius toFahrenheit := method(self * 9 / 5 + 32)
+Celsius toKelvin := method(self + 273.15)
+
+Fahrenheit := Object clone
+Fahrenheit toCelsius := method((self - 32) * 5 / 9)
+Fahrenheit toKelvin := method(self toCelsius + 273.15)
+
+Kelvin := Object clone
+Kelvin toCelsius := method(self - 273.15)
+Kelvin toFahrenheit := method(self toCelsius * 9 / 5 + 32)
+
+// Example usage (commented out in actual utility)
+// 25 Celsius toFahrenheit println  // Output: 77
+// 100 Celsius toKelvin println     // Output: 373.15
+// 32 Fahrenheit toCelsius println  // Output: 0
+// 0 Kelvin toCelsius println       // Output: -273.15
