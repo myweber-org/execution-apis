@@ -1,57 +1,57 @@
 
-Matrix := Object clone do(
-    init := method(data,
-        self data := data
-        self rows := data size
-        self cols := data at(0) size
-    )
-    
-    print := method(
-        data foreach(row,
-            row join(" ") println
-        )
-    )
-    
-    multiply := method(other,
-        if(cols != other rows,
-            Exception raise("Matrix dimension mismatch: #{cols} != #{other rows}" interpolate)
-        )
-        
-        result := List clone
-        for(i, 0, rows - 1,
-            row := List clone
-            for(j, 0, other cols - 1,
-                sum := 0
-                for(k, 0, cols - 1,
-                    sum = sum + (data at(i) at(k) * other data at(k) at(j))
-                )
-                row append(sum)
-            )
-            result append(row)
-        )
-        Matrix clone init(result)
+Matrix := Object clone
+Matrix dim := method(x, y,
+    self x := x
+    self y := y
+    self data := List clone
+    for(i, 1, x,
+        row := List clone
+        for(j, 1, y, row append(0))
+        data append(row)
     )
 )
 
-// Example usage
-a := Matrix clone init(list(list(1,2,3), list(4,5,6)))
-b := Matrix clone init(list(list(7,8), list(9,10), list(11,12)))
+Matrix set := method(x, y, value,
+    data at(x) atPut(y, value)
+)
 
-"Matrix A:" println
-a print
+Matrix get := method(x, y,
+    data at(x) at(y)
+)
 
-"\nMatrix B:" println
-b print
+Matrix print := method(
+    data foreach(i, row,
+        row foreach(j, element,
+            element print
+            " " print
+        )
+        "" println
+    )
+)
 
-"\nResult of A * B:" println
+Matrix multiply := method(other,
+    result := Matrix clone dim(x, other y)
+    for(i, 0, x - 1,
+        for(j, 0, other y - 1,
+            sum := 0
+            for(k, 0, y - 1,
+                sum = sum + (get(i, k) * other get(k, j))
+            )
+            result set(i, j, sum)
+        )
+    )
+    result
+)
+
+a := Matrix clone dim(3, 3)
+a set(0, 0, 1) a set(0, 1, 2) a set(0, 2, 3)
+a set(1, 0, 4) a set(1, 1, 5) a set(1, 2, 6)
+a set(2, 0, 7) a set(2, 1, 8) a set(2, 2, 9)
+
+b := Matrix clone dim(3, 3)
+b set(0, 0, 9) b set(0, 1, 8) b set(0, 2, 7)
+b set(1, 0, 6) b set(1, 1, 5) b set(1, 2, 4)
+b set(2, 0, 3) b set(2, 1, 2) b set(2, 2, 1)
+
 c := a multiply(b)
 c print
-
-// Test error case
-d := Matrix clone init(list(list(1,2), list(3,4)))
-"\nAttempting invalid multiplication (should fail):" println
-e := try(
-    a multiply(d)
-) catch(Exception,
-    writeln("Caught error: ", error)
-)
