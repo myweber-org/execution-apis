@@ -98,3 +98,23 @@ Object printTemperature := method(
     self type print
     "\n" print
 )
+CelsiusToFahrenheit := method(celsius, celsius * 9 / 5 + 32)
+CelsiusToKelvin := method(celsius, celsius + 273.15)
+
+convertTemperatures := method(celsiusList,
+    celsiusList map(celsius,
+        Map clone atPut("celsius", celsius) \
+               atPut("fahrenheit", CelsiusToFahrenheit(celsius)) \
+               atPut("kelvin", CelsiusToKelvin(celsius))
+    )
+)
+
+// Example usage
+sampleTemperatures := list(-40, 0, 25, 100)
+converted := convertTemperatures(sampleTemperatures)
+
+converted foreach(tempMap,
+    writeln(tempMap at("celsius"), "°C = ", 
+            tempMap at("fahrenheit") round(2), "°F = ",
+            tempMap at("kelvin") round(2), "K")
+)
