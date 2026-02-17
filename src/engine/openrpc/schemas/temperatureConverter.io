@@ -1,44 +1,47 @@
 
 TemperatureConverter := Object clone do(
-    toFahrenheit := method(celsius, (celsius * 9/5) + 32)
-    toKelvin := method(celsius, celsius + 273.15)
-    toCelsiusFromFahrenheit := method(fahrenheit, (fahrenheit - 32) * 5/9)
-    toCelsiusFromKelvin := method(kelvin, kelvin - 273.15)
+    celsiusToFahrenheit := method(celsius,
+        (celsius * 9/5) + 32
+    )
+    
+    celsiusToKelvin := method(celsius,
+        celsius + 273.15
+    )
+    
+    fahrenheitToCelsius := method(fahrenheit,
+        (fahrenheit - 32) * 5/9
+    )
+    
+    kelvinToCelsius := method(kelvin,
+        kelvin - 273.15
+    )
     
     convert := method(value, fromUnit, toUnit,
         celsius := if(fromUnit == "C", value,
-            fromUnit == "F", toCelsiusFromFahrenheit(value),
-            fromUnit == "K", toCelsiusFromKelvin(value),
-            Exception raise("Invalid source unit"))
+            if(fromUnit == "F", fahrenheitToCelsius(value),
+                if(fromUnit == "K", kelvinToCelsius(value), nil)
+            )
+        )
         
-        if(toUnit == "C", celsius,
-            toUnit == "F", toFahrenheit(celsius),
-            toUnit == "K", toKelvin(celsius),
-            Exception raise("Invalid target unit"))
-    )
-    
-    printConversions := method(value, unit,
-        if(unit == "C",
-            f := toFahrenheit(value) round(2)
-            k := toKelvin(value) round(2)
-            writeln(value, "°C = ", f, "°F = ", k, "K"),
-        unit == "F",
-            c := toCelsiusFromFahrenheit(value) round(2)
-            k := toKelvin(c) round(2)
-            writeln(value, "°F = ", c, "°C = ", k, "K"),
-        unit == "K",
-            c := toCelsiusFromKelvin(value) round(2)
-            f := toFahrenheit(c) round(2)
-            writeln(value, "K = ", c, "°C = ", f, "°F"),
-            Exception raise("Invalid unit"))
+        if(celsius == nil, return "Invalid source unit")
+        
+        result := if(toUnit == "C", celsius,
+            if(toUnit == "F", celsiusToFahrenheit(celsius),
+                if(toUnit == "K", celsiusToKelvin(celsius), nil)
+            )
+        )
+        
+        if(result == nil, return "Invalid target unit", result)
     )
 )
 
 // Example usage
 converter := TemperatureConverter clone
-converter printConversions(100, "C")
-converter printConversions(212, "F")
-converter printConversions(373.15, "K")
+"25°C to Fahrenheit: " print
+converter convert(25, "C", "F") println
 
-result := converter convert(25, "C", "F")
-writeln("25°C in Fahrenheit: ", result)
+"98.6°F to Celsius: " print
+converter convert(98.6, "F", "C") println
+
+"0°C to Kelvin: " print
+converter convert(0, "C", "K") println
