@@ -19,3 +19,20 @@ for(i, 0, 10,
     (fib(i) asString .. " ") print
 )
 "" println
+fibonacci := method(n,
+    cache := Map clone
+    cache atPut(0, 0)
+    cache atPut(1, 1)
+    
+    fib := method(i,
+        cache hasKey(i) ifFalse(
+            cache atPut(i, fib(i-1) + fib(i-2))
+        )
+        cache at(i)
+    )
+    
+    fib(n)
+)
+
+"Fibonacci sequence:" println
+for(i, 0, 10, fibonacci(i) println)
