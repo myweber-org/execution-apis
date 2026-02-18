@@ -102,3 +102,60 @@ b set(0, 1, 10) set(1, 1, 11) set(2, 1, 12)
 
 c := a multiply(b)
 c print
+Matrix := Object clone do(
+    dim := method(self data size, self data at(0) size)
+    
+    init := method(data,
+        self data := data
+        self
+    )
+    
+    print := method(
+        self data foreach(row,
+            row foreach(element,
+                element print
+                " " print
+            )
+            "" println
+        )
+    )
+    
+    multiply := method(other,
+        if(self dim(1) != other dim(0),
+            Exception raise("Matrix dimensions incompatible for multiplication")
+        )
+        
+        result := List clone
+        for(i, 0, self dim(0) - 1,
+            row := List clone
+            for(j, 0, other dim(1) - 1,
+                sum := 0
+                for(k, 0, self dim(1) - 1,
+                    sum = sum + (self data at(i) at(k) * other data at(k) at(j))
+                )
+                row append(sum)
+            )
+            result append(row)
+        )
+        
+        Matrix clone init(result)
+    )
+)
+
+// Example usage
+matrixA := Matrix clone init(list(list(1, 2, 3), list(4, 5, 6)))
+matrixB := Matrix clone init(list(list(7, 8), list(9, 10), list(11, 12)))
+
+"Matrix A:" println
+matrixA print
+
+"Matrix B:" println
+matrixB print
+
+"Result of A * B:" println
+try(
+    result := matrixA multiply(matrixB)
+    result print
+) catch(Exception,
+    "Error: " .. Exception description println
+)
