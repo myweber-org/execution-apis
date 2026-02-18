@@ -57,3 +57,58 @@ b set(2, 0, 11) set(2, 1, 12)
 
 c := a multiply(b)
 if(c, c print)
+Matrix := Object clone do(
+    init := method(data,
+        self data := data
+        self rows := data size
+        self cols := if(data size > 0, data at(0) size, 0)
+    )
+
+    dims := method(list(rows, cols))
+
+    multiply := method(other,
+        if(cols != other rows, 
+            Exception raise("Matrix dimension mismatch: " .. 
+                "(" .. rows .. "," .. cols .. ") * " ..
+                "(" .. other rows .. "," .. other cols .. ")")
+        )
+
+        result := List clone
+        for(i, 0, rows - 1,
+            row := List clone
+            for(j, 0, other cols - 1,
+                sum := 0
+                for(k, 0, cols - 1,
+                    sum = sum + (data at(i) at(k) * other data at(k) at(j))
+                )
+                row append(sum)
+            )
+            result append(row)
+        )
+        Matrix clone init(result)
+    )
+
+    toString := method(
+        "Matrix(" .. rows .. "x" .. cols .. ")"
+    )
+)
+
+// Example usage
+a := Matrix clone init(list(
+    list(1, 2, 3),
+    list(4, 5, 6)
+))
+
+b := Matrix clone init(list(
+    list(7, 8),
+    list(9, 10),
+    list(11, 12)
+))
+
+try(
+    c := a multiply(b)
+    "Result: " println
+    c data foreach(row, row println)
+) catch(Exception,
+    "Error: " .. error println
+)
