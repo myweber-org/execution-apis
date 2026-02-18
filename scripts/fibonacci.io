@@ -83,3 +83,21 @@ fib(10) println
 
 "Fibonacci of 20: " print
 fib(20) println
+Fibonacci := Object clone do(
+    cache := Map clone
+
+    compute := method(n,
+        if(cache hasKey(n), return cache at(n))
+        if(n <= 1, return n)
+        result := compute(n - 1) + compute(n - 2)
+        cache atPut(n, result)
+        result
+    )
+
+    clearCache := method(cache empty)
+)
+
+"Testing Fibonacci sequence:" println
+for(i, 0, 10, 
+    ("F(" .. i .. ") = " .. Fibonacci compute(i)) println
+)
