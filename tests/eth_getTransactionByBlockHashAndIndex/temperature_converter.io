@@ -102,3 +102,15 @@ Fahrenheit toCelsius(98.6) println
 
 "300 Kelvin in Celsius: " print
 Kelvin toCelsius(300) println
+CelsiusToFahrenheit := method(celsius,
+    (celsius * 9/5) + 32
+)
+
+main := method(
+    "Enter Celsius temperature: " print
+    input := File standardInput readLine asNumber
+    fahrenheit := CelsiusToFahrenheit(input)
+    writeln(input, "°C = ", fahrenheit, "°F")
+)
+
+if(isLaunchScript, main)
