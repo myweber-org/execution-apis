@@ -31,3 +31,29 @@ if(isLaunchScript,
         writeln("Usage: io FileRenamer.io <directory> <prefix>")
     )
 )
+FileRenamer := Object clone do(
+    renameFile := method(path,
+        if(File with(path) exists,
+            timestamp := Date clone now asString("%Y%m%d_%H%M%S")
+            newPath := path .. "_" .. timestamp
+            File with(path) renameTo(newPath)
+            writeln("Renamed '", path, "' to '", newPath, "'")
+        ,
+            writeln("File '", path, "' does not exist")
+        )
+    )
+
+    renameFilesInDirectory := method(directoryPath,
+        Directory with(directoryPath) files foreach(file,
+            renameFile(file path)
+        )
+    )
+)
+
+if(isLaunchScript,
+    if(System args size > 1,
+        FileRenamer renameFilesInDirectory(System args at(1))
+    ,
+        writeln("Usage: io FileRenamer.io <directory>")
+    )
+)
