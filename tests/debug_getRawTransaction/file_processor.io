@@ -48,3 +48,32 @@ fileSize := processor size(testPath)
 "File content:" println
 currentContent println
 ("File size: " .. fileSize .. " bytes") println
+FileProcessor := Object clone do(
+    countLines := method(path,
+        file := File with(path) openForReading
+        lines := file readLines size
+        file close
+        lines
+    )
+    
+    countWords := method(path,
+        file := File with(path) openForReading
+        content := file readAll
+        file close
+        words := content split(" ") select(w, w size > 0) size
+        words
+    )
+    
+    processFile := method(path,
+        lines := self countLines(path)
+        words := self countWords(path)
+        list(lines, words)
+    )
+    
+    printStats := method(path,
+        result := self processFile(path)
+        "File: #{path}" interpolate println
+        "Lines: #{result at(0)}" interpolate println
+        "Words: #{result at(1)}" interpolate println
+    )
+)
