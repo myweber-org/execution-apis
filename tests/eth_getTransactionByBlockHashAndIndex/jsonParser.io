@@ -7,25 +7,17 @@ JsonParser := Object clone do(
             Exception raise("Invalid JSON: " .. jsonString)
         )
     )
-    
+
     stringify := method(obj, pretty := false,
         if(pretty,
-            obj serialized(0)
-        ,
             obj serialized
+        ,
+            obj asJson
         )
     )
-    
-    fromFile := method(path,
-        file := File with(path) openForReading
-        content := file contents
-        file close
-        parse(content)
-    )
-    
-    toFile := method(obj, path, pretty := false,
-        file := File with(path) openForUpdating
-        file setContents(stringify(obj, pretty))
-        file close
+
+    prettyPrint := method(jsonString,
+        obj := parse(jsonString)
+        stringify(obj, true)
     )
 )
