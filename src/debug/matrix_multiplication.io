@@ -65,3 +65,34 @@ try(
 ) catch(Exception,
     "Caught expected error: " .. Exception description println
 )
+Matrix := Object clone
+Matrix dim := method(self size .. self at(0) size)
+Matrix * := method(other,
+    if(self at(0) size != other size,
+        Exception raise("Matrix dimension mismatch: " .. self dim .. " vs " .. other dim)
+    )
+    result := List clone
+    self foreach(i, row,
+        newRow := List clone
+        other at(0) size repeat(j,
+            sum := 0
+            row foreach(k, value,
+                sum = sum + value * other at(k) at(j)
+            )
+            newRow append(sum)
+        )
+        result append(newRow)
+    )
+    result
+)
+
+// Test matrices
+a := list(list(1,2,3), list(4,5,6))
+b := list(list(7,8), list(9,10), list(11,12))
+
+try(
+    product := a * b
+    product println
+) catch(Exception,
+    writeln("Error: ", error)
+)
