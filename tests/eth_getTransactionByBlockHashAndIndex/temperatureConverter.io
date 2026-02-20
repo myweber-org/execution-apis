@@ -39,3 +39,56 @@ testConversion := method(
 )
 
 testConversion
+TemperatureConverter := Object clone do(
+    celsiusToFahrenheit := method(celsius,
+        (celsius * 9/5) + 32
+    )
+    
+    celsiusToKelvin := method(celsius,
+        celsius + 273.15
+    )
+    
+    fahrenheitToCelsius := method(fahrenheit,
+        (fahrenheit - 32) * 5/9
+    )
+    
+    fahrenheitToKelvin := method(fahrenheit,
+        self celsiusToKelvin(self fahrenheitToCelsius(fahrenheit))
+    )
+    
+    kelvinToCelsius := method(kelvin,
+        kelvin - 273.15
+    )
+    
+    kelvinToFahrenheit := method(kelvin,
+        self celsiusToFahrenheit(self kelvinToCelsius(kelvin))
+    )
+    
+    convert := method(value, fromUnit, toUnit,
+        conversionMap := Map clone do(
+            atPut("C_F", block(celsiusToFahrenheit(value)))
+            atPut("C_K", block(celsiusToKelvin(value)))
+            atPut("F_C", block(fahrenheitToCelsius(value)))
+            atPut("F_K", block(fahrenheitToKelvin(value)))
+            atPut("K_C", block(kelvinToCelsius(value)))
+            atPut("K_F", block(kelvinToFahrenheit(value)))
+        )
+        
+        key := fromUnit .. "_" .. toUnit
+        if(conversionMap hasKey(key),
+            conversionMap at(key) call,
+            Exception raise("Unsupported conversion from #{fromUnit} to #{toUnit}" interpolate)
+        )
+    )
+)
+
+// Example usage
+converter := TemperatureConverter clone
+"25°C to Fahrenheit: " print
+converter convert(25, "C", "F") println
+
+"100°F to Kelvin: " print
+converter convert(100, "F", "K") println
+
+"300K to Celsius: " print
+converter convert(300, "K", "C") println
