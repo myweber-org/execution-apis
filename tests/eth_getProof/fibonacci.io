@@ -93,3 +93,24 @@ for(i, 0, 9,
     " " print
 )
 "" println
+fib := method(n,
+    cache := Map clone
+    cache atPut(0, 0)
+    cache atPut(1, 1)
+    
+    fibMemo := method(n,
+        if(cache hasKey(n),
+            cache at(n),
+            result := fibMemo(n - 1) + fibMemo(n - 2)
+            cache atPut(n, result)
+            result
+        )
+    )
+    
+    fibMemo(n)
+)
+
+"Fibonacci sequence from 0 to 10:" println
+for(i, 0, 10,
+    (i .. " -> " .. fib(i)) println
+)
