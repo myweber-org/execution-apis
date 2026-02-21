@@ -1,29 +1,33 @@
 
 FileRenamer := Object clone do(
-    renameWithTimestamp := method(path,
-        if(File with(path) exists not,
-            Exception raise("File not found: #{path}" interpolate)
-        )
+    renameFiles := method(directoryPath, prefix,
+        files := Directory with(directoryPath) files
+        sortedFiles := files sortBy(block(a, b, a name < b name))
+        counter := 1
         
-        timestamp := Date clone now asString("%Y%m%d_%H%M%S")
-        dir := Path with(path) parentPath
-        baseName := Path with(path) fileName
-        newPath := dir .. "/" .. timestamp .. "_" .. baseName
-        
-        File with(path) moveTo(newPath)
-        newPath
-    )
-    
-    renameMultiple := method(pathList,
-        results := List clone
-        pathList foreach(path,
-            try(
-                newPath := self renameWithTimestamp(path)
-                results append(newPath)
-            ) catch(Exception,
-                results append("Failed: #{path}" interpolate)
+        sortedFiles foreach(file,
+            extension := if(file name containsSeq("."), 
+                "." .. file name split(".") last, 
+                ""
             )
+            newName := prefix .. counter asString .. extension
+            oldPath := directoryPath .. "/" .. file name
+            newPath := directoryPath .. "/" .. newName
+            
+            if(oldPath != newPath,
+                file moveTo(newPath)
+                writeln("Renamed: ", file name, " -> ", newName)
+            )
+            counter = counter + 1
         )
-        results
+        writeln("Renamed ", counter - 1, " files")
+    )
+)
+
+if(isLaunchScript,
+    if(System args size == 3,
+        FileRenamer renameFiles(System args at(1), System args at(2))
+    ,
+        writeln("Usage: io FileRenamer.io <directory> <prefix>")
     )
 )
