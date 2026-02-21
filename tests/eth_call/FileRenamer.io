@@ -54,3 +54,21 @@ if(isLaunchScript,
         write("Usage: io FileRenamer.io <directory_path>\n")
     )
 )
+FileRenamer := Object clone do(
+    renameFiles := method(directoryPath, prefix,
+        files := Directory with(directoryPath) files
+        counter := 1
+        files foreach(i, file,
+            extension := file path split(".") last
+            newName := "#{prefix}#{counter}.#{extension}" interpolate
+            newPath := Path with(directoryPath, newName)
+            file renameTo(newPath)
+            counter = counter + 1
+        )
+        writeln("Renamed ", files size, " files")
+    )
+)
+
+if(isLaunchScript,
+    FileRenamer renameFiles("path/to/files", "image_")
+)
