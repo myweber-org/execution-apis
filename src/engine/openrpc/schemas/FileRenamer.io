@@ -70,3 +70,47 @@ if(isLaunchScript,
         System exit(1)
     )
 )
+FileRenamer := Object clone do(
+    renameWithTimestamp := method(path,
+        if(Directory with(path) exists not and File with(path) exists not,
+            Exception raise("Path does not exist: #{path}" interpolate)
+        )
+        
+        oldFile := File with(path)
+        timestamp := Date now asString("%Y%m%d_%H%M%S")
+        extension := if(oldFile path extension, "." .. oldFile path extension, "")
+        baseName := oldFile nameWithoutExtension
+        newName := "#{timestamp}_#{baseName}#{extension}" interpolate
+        newPath := oldFile directory path / newName
+        
+        oldFile moveTo(newPath)
+        writeln("Renamed: #{path} -> #{newPath}" interpolate)
+        return newPath
+    )
+    
+    renameDirectoryContents := method(dirPath,
+        directory := Directory with(dirPath)
+        if(directory exists not,
+            Exception raise("Directory does not exist: #{dirPath}" interpolate)
+        )
+        
+        results := List clone
+        directory files foreach(file,
+            try(
+                newPath := renameWithTimestamp(file path)
+                results append(newPath)
+            ) catch(Exception,
+                writeln("Failed to rename #{file path}: #{error}" interpolate)
+            )
+        )
+        return results
+    )
+)
+
+if(isLaunchScript,
+    if(System args size == 1,
+        FileRenamer renameWithTimestamp(System args at(0))
+    ) else(
+        writeln("Usage: io FileRenamer.io <file_or_directory_path>")
+    )
+)
