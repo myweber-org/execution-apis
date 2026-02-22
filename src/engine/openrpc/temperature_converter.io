@@ -100,3 +100,13 @@ converter := TemperatureConverter clone
 converter displayConversions(25)
 converter displayConversions(0)
 converter displayConversions(-40)
+CelsiusToFahrenheit := method(celsius,
+    (celsius * 9/5) + 32
+)
+
+do(
+    "Enter Celsius temperature: " print
+    input := File standardInput readLine asNumber
+    fahrenheit := CelsiusToFahrenheit(input)
+    ("Fahrenheit: " .. fahrenheit) println
+)
