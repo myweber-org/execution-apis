@@ -1,11 +1,48 @@
 
-URL := "https://www.example.com"
-title := URL fetch asString betweenSeq("<title>", "</title>")
-("Title: " .. title) println
-URL := "https://example.com"
-html := URL fetch
-"Fetched #{html size} bytes from #{URL}" println
+WebCrawler := Object clone do(
+    fetchHtml := method(url,
+        url asURL fetch
+    )
 
-// Extract all links from the HTML
-links := html findRegex("href=\"(http[^\"]+)\"")
-links foreach(link, "Found link: #{link at(1)}" println)
+    parseLinks := method(html,
+        links := List clone
+        html findallSeq("href=\"(.*?)\"") foreach(match,
+            links append(match at(1))
+        )
+        links
+    )
+
+    crawl := method(startUrl, maxDepth,
+        visited := Map clone
+        queue := list(list(startUrl, 0))
+        
+        while(queue size > 0,
+            current := queue removeFirst
+            url := current at(0)
+            depth := current at(1)
+            
+            if(visited hasKey(url) not and depth <= maxDepth,
+                visited atPut(url, true)
+                writeln("Crawling: ", url, " at depth ", depth)
+                
+                html := self fetchHtml(url)
+                if(html,
+                    links := self parseLinks(html)
+                    links foreach(link,
+                        absoluteUrl := if(link beginsWithSeq("http"),
+                            link,
+                            URL with(url) setPath(link) asString
+                        )
+                        queue append(list(absoluteUrl, depth + 1))
+                    )
+                )
+            )
+        )
+        visited keys
+    )
+)
+
+// Example usage
+crawler := WebCrawler clone
+urls := crawler crawl("https://example.com", 2)
+urls join("\n") println
