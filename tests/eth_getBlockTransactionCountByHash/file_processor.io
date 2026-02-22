@@ -81,3 +81,35 @@ FileProcessor := Object clone do(
         file size
     )
 )
+FileProcessor := Object clone do(
+    isValidFile := method(path,
+        file := File with(path)
+        if(file exists not, return false)
+        if(file size > 1000000, return false)
+        if(path endsWithSeq(".tmp") or path endsWithSeq(".log"), return false)
+        true
+    )
+    
+    processFile := method(path,
+        if(isValidFile(path) not,
+            return "Invalid file: #{path}" interpolate
+        )
+        
+        file := File with(path)
+        content := file contents
+        processed := content asUppercase
+        
+        outputPath := path .. ".processed"
+        File with(outputPath) openForUpdating write(processed) close
+        
+        "Processed #{path} -> #{outputPath}" interpolate
+    )
+    
+    batchProcess := method(paths,
+        results := List clone
+        paths foreach(path,
+            results append(processFile(path))
+        )
+        results
+    )
+)
