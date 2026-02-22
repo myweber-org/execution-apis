@@ -250,3 +250,212 @@ JsonParser := Object clone do(
         Exception raise("Cannot pretty print type: " .. obj type)
     )
 )
+JsonParser := Object clone do(
+    parse := method(jsonString,
+        if(jsonString isNil or jsonString isEmpty, return nil)
+        
+        // Remove whitespace
+        jsonString := jsonString strip
+        
+        // Parse based on first character
+        firstChar := jsonString at(0)
+        if(firstChar == "{", return parseObject(jsonString))
+        if(firstChar == "[", return parseArray(jsonString))
+        if(firstChar == "\"", return parseString(jsonString))
+        if(firstChar isDigit or firstChar == "-", return parseNumber(jsonString))
+        if(jsonString beginsWithSeq("true"), return true)
+        if(jsonString beginsWithSeq("false"), return false)
+        if(jsonString beginsWithSeq("null"), return nil)
+        
+        Exception raise("Invalid JSON: " .. jsonString)
+    )
+    
+    parseObject := method(jsonString,
+        result := Map clone
+        content := jsonString exSlice(1, -1) strip
+        
+        while(content size > 0,
+            // Find key
+            quoteIndex := content findSeq("\"")
+            if(quoteIndex isNil, Exception raise("Expected '\"' in object"))
+            
+            endQuoteIndex := content findSeq("\"", quoteIndex + 1)
+            if(endQuoteIndex isNil, Exception raise("Unterminated string in object"))
+            
+            key := content exSlice(quoteIndex + 1, endQuoteIndex)
+            remaining := content exSlice(endQuoteIndex + 1) strip
+            
+            // Expect colon
+            if(remaining at(0) != ":", Exception raise("Expected ':' after key"))
+            remaining := remaining exSlice(1) strip
+            
+            // Parse value
+            valueResult := parseValue(remaining)
+            value := valueResult at(0)
+            valueEnd := valueResult at(1)
+            
+            result atPut(key, value)
+            
+            // Check for next item or end
+            remaining := remaining exSlice(valueEnd) strip
+            if(remaining size == 0, break)
+            
+            if(remaining at(0) != ",", Exception raise("Expected ',' or end of object"))
+            content := remaining exSlice(1) strip
+        )
+        
+        result
+    )
+    
+    parseArray := method(jsonString,
+        result := List clone
+        content := jsonString exSlice(1, -1) strip
+        
+        while(content size > 0,
+            // Parse value
+            valueResult := parseValue(content)
+            value := valueResult at(0)
+            valueEnd := valueResult at(1)
+            
+            result append(value)
+            
+            // Check for next item or end
+            remaining := content exSlice(valueEnd) strip
+            if(remaining size == 0, break)
+            
+            if(remaining at(0) != ",", Exception raise("Expected ',' or end of array"))
+            content := remaining exSlice(1) strip
+        )
+        
+        result
+    )
+    
+    parseValue := method(jsonString,
+        if(jsonString size == 0, return list(nil, 0))
+        
+        firstChar := jsonString at(0)
+        if(firstChar == "{",
+            objEnd := findMatchingBrace(jsonString, "{", "}")
+            return list(parseObject(jsonString exSlice(0, objEnd + 1)), objEnd + 1)
+        )
+        
+        if(firstChar == "[",
+            arrEnd := findMatchingBrace(jsonString, "[", "]")
+            return list(parseArray(jsonString exSlice(0, arrEnd + 1)), arrEnd + 1)
+        )
+        
+        if(firstChar == "\"",
+            strEnd := findStringEnd(jsonString)
+            return list(parseString(jsonString exSlice(0, strEnd + 1)), strEnd + 1)
+        )
+        
+        // Parse literal values
+        if(jsonString beginsWithSeq("true"), return list(true, 4))
+        if(jsonString beginsWithSeq("false"), return list(false, 5))
+        if(jsonString beginsWithSeq("null"), return list(nil, 4))
+        
+        // Parse number
+        numEnd := findNumberEnd(jsonString)
+        return list(parseNumber(jsonString exSlice(0, numEnd)), numEnd)
+    )
+    
+    findMatchingBrace := method(str, open, close,
+        count := 0
+        for(i, 0, str size - 1,
+            ch := str at(i)
+            if(ch == open, count = count + 1)
+            if(ch == close,
+                count = count - 1
+                if(count == 0, return i)
+            )
+        )
+        Exception raise("Unmatched " .. open .. " in JSON")
+    )
+    
+    findStringEnd := method(str,
+        i := 1
+        while(i < str size,
+            ch := str at(i)
+            if(ch == "\"",
+                // Check if it's escaped
+                if(str at(i - 1) != "\\", return i)
+            )
+            i = i + 1
+        )
+        Exception raise("Unterminated string in JSON")
+    )
+    
+    findNumberEnd := method(str,
+        i := 0
+        while(i < str size,
+            ch := str at(i)
+            if(ch isDigit or ch == "-" or ch == "+" or ch == "." or ch == "e" or ch == "E",
+                i = i + 1
+            ,
+                break
+            )
+        )
+        i
+    )
+    
+    parseString := method(jsonString,
+        jsonString exSlice(1, -1) replaceSeq("\\\"", "\"")
+    )
+    
+    parseNumber := method(jsonString,
+        jsonString asNumber
+    )
+    
+    prettyPrint := method(parsed, indent := 0,
+        if(parsed isNil, return "null")
+        if(parsed type == "Boolean", return if(parsed, "true", "false"))
+        if(parsed type == "Number", return parsed asString)
+        if(parsed type == "Sequence", return "\"" .. parsed .. "\"")
+        
+        if(parsed type == "Map",
+            if(parsed size == 0, return "{}")
+            
+            result := "{\n"
+            spaces := "  " repeated(indent + 1)
+            
+            parsed keys foreach(i, key,
+                result = result .. spaces .. "\"" .. key .. "\": "
+                result = result .. prettyPrint(parsed at(key), indent + 1)
+                if(i < parsed size - 1, result = result .. ",")
+                result = result .. "\n"
+            )
+            
+            result = result .. ("  " repeated(indent)) .. "}"
+            return result
+        )
+        
+        if(parsed type == "List",
+            if(parsed size == 0, return "[]")
+            
+            result := "[\n"
+            spaces := "  " repeated(indent + 1)
+            
+            parsed foreach(i, value,
+                result = result .. spaces .. prettyPrint(value, indent + 1)
+                if(i < parsed size - 1, result = result .. ",")
+                result = result .. "\n"
+            )
+            
+            result = result .. ("  " repeated(indent)) .. "]"
+            return result
+        )
+        
+        Exception raise("Unsupported type for pretty printing: " .. parsed type)
+    )
+)
+
+// Example usage
+if(isLaunchScript,
+    json := "{\"name\": \"John\", \"age\": 30, \"hobbies\": [\"reading\", \"coding\"]}"
+    parsed := JsonParser parse(json)
+    "Parsed: " println
+    parsed asJson println
+    
+    "\nPretty printed:" println
+    JsonParser prettyPrint(parsed) println
+)
