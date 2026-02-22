@@ -66,3 +66,40 @@ converter := TemperatureConverter clone
 converter displayConversions(25)
 result := converter convert(100, "CtoF")
 "100°C in Fahrenheit: #{result}" interpolate println
+CelsiusToFahrenheit := method(celsius, celsius * 9 / 5 + 32)
+CelsiusToKelvin := method(celsius, celsius + 273.15)
+
+TemperatureConverter := Object clone do(
+    convert := method(value, unit,
+        if(unit == "CtoF", return CelsiusToFahrenheit(value))
+        if(unit == "CtoK", return CelsiusToKelvin(value))
+        Exception raise("Unsupported conversion unit: " .. unit)
+    )
+    
+    displayConversions := method(celsiusValue,
+        fahrenheit := CelsiusToFahrenheit(celsiusValue)
+        kelvin := CelsiusToKelvin(celsiusValue)
+        
+        ("Input: " .. celsiusValue .. "°C") println
+        ("Fahrenheit: " .. fahrenheit .. "°F") println
+        ("Kelvin: " .. kelvin .. "K") println
+        "" println
+    )
+)
+
+// Example usage
+if(isLaunchScript,
+    converter := TemperatureConverter clone
+    
+    "Temperature Conversion Examples" println
+    "==============================" println
+    "" println
+    
+    list(0, 25, 100, -40) foreach(celsius,
+        converter displayConversions(celsius)
+    )
+    
+    "Single conversion test:" println
+    result := converter convert(100, "CtoF")
+    ("100°C to Fahrenheit: " .. result .. "°F") println
+)
