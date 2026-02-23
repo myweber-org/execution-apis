@@ -58,3 +58,21 @@ fib(10) println
 
 "Fibonacci of 15: " print
 fib(15) println
+fib := method(n,
+    cache := Map clone
+    cache atPut(0, 0)
+    cache atPut(1, 1)
+    
+    fibRec := method(n,
+        if(cache hasKey(n),
+            cache at(n),
+            result := fibRec(n-1) + fibRec(n-2)
+            cache atPut(n, result)
+            result
+        )
+    )
+    
+    fibRec(n)
+)
+
+for(i, 0, 10, write(fib(i), " "))
