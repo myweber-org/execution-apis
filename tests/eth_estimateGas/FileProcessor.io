@@ -122,4 +122,38 @@ FileProcessor := Object clone do(
         lines := countLines(path)
         "Processed #{path}: #{lines} lines" interpolate
     )
+)FileProcessor := Object clone do(
+    readFile := method(path,
+        file := File with(path)
+        if(file exists,
+            file openForReading contents
+        ,
+            Exception raise("File not found: #{path}" interpolate)
+        )
+    )
+    
+    writeFile := method(path, content,
+        file := File with(path)
+        file remove
+        file openForUpdating write(content) close
+        "Written #{content size} bytes to #{path}" interpolate
+    )
+    
+    appendToFile := method(path, content,
+        file := File with(path)
+        if(file exists not, file create)
+        file openForAppending write(content) close
+        "Appended #{content size} bytes to #{path}" interpolate
+    )
+    
+    getFileInfo := method(path,
+        file := File with(path)
+        if(file exists,
+            Map clone atPut("path", file path) \
+                     atPut("size", file size) \
+                     atPut("modified", file lastDataChangeDate)
+        ,
+            Exception raise("File not found: #{path}" interpolate)
+        )
+    )
 )
