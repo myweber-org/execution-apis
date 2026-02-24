@@ -1,12 +1,5 @@
 
 fibonacci := method(n,
-    if(n <= 1, n, fibonacci(n - 1) + fibonacci(n - 2))
-)
-
-for(i, 0, 10,
-    fibonacci(i) println
-)
-fibonacci := method(n,
     memo := Map clone
     memo atPut(0, 0)
     memo atPut(1, 1)
@@ -23,5 +16,9 @@ fibonacci := method(n,
     fib(n)
 )
 
-"Fibonacci sequence:" println
-for(i, 0, 10, fibonacci(i) println)
+"First 10 Fibonacci numbers:" println
+for(i, 0, 9,
+    fibonacci(i) print
+    " " print
+)
+"" println
