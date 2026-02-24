@@ -1,32 +1,27 @@
 
 FileProcessor := Object clone do(
-    countLines := method(filePath,
-        file := File with(filePath)
-        if(file exists not, return 0)
-        file openForReading
-        count := 0
-        file foreachLine(line, count = count + 1)
-        file close
-        count
+    readFile := method(path,
+        File with(path) openForReading contents
     )
-
-    filterLines := method(filePath, pattern,
-        result := List clone
-        file := File with(filePath)
-        if(file exists not, return result)
-        file openForReading
-        file foreachLine(line,
-            if(line contains(pattern),
-                result append(line)
-            )
-        )
-        file close
-        result
+    
+    writeFile := method(path, content,
+        file := File with(path)
+        file remove
+        file openForUpdating write(content) close
     )
-
-    processFile := method(filePath, pattern,
-        lines := countLines(filePath)
-        filtered := filterLines(filePath, pattern)
-        Map clone atPut("totalLines", lines) atPut("filteredCount", filtered size) atPut("filteredLines", filtered)
+    
+    countLines := method(path,
+        content := self readFile(path)
+        if(content isNil, return 0)
+        content split("\n") size
+    )
+    
+    processFile := method(inputPath, outputPath,
+        content := self readFile(inputPath)
+        if(content isNil, return nil)
+        lines := content split("\n")
+        processed := lines map(line, "Processed: " .. line) join("\n")
+        self writeFile(outputPath, processed)
+        lines size
     )
 )
