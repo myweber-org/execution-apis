@@ -156,3 +156,40 @@ if(isLaunchScript,
     writeln("\nPretty printed:")
     writeln(parser prettyPrint(parsed))
 )
+JsonParser := Object clone do(
+    parse := method(jsonString,
+        try(
+            jsonString asMutable replaceSeq("\"", "\"") asJson
+        ) catch(Exception,
+            Exception raise("Invalid JSON: " .. jsonString)
+        )
+    )
+
+    stringify := method(obj, pretty := false,
+        if(pretty,
+            obj asJson asMutable replaceSeq(":", ": ") replaceSeq(",", ", ")
+        ,
+            obj asJson
+        )
+    )
+
+    validate := method(jsonString,
+        try(
+            jsonString asJson
+            true
+        ) catch(Exception,
+            false
+        )
+    )
+)
+
+// Example usage
+testData := Map clone do(
+    atPut("name", "John")
+    atPut("age", 30)
+    atPut("active", true)
+)
+
+parsed := JsonParser parse("{\"test\": 123}")
+prettyJson := JsonParser stringify(testData, true)
+isValid := JsonParser validate("{\"broken\": json}")
