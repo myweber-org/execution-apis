@@ -22,3 +22,23 @@ for(i, 0, 9,
     " " print
 )
 "" println
+fibonacci := method(n,
+    cache := Map clone
+    cache atPut(0, 0)
+    cache atPut(1, 1)
+    
+    fib := method(i,
+        if(cache hasKey(i), return cache at(i))
+        result := fib(i-1) + fib(i-2)
+        cache atPut(i, result)
+        result
+    )
+    
+    fib(n)
+)
+
+"Fibonacci of 10: " print
+fibonacci(10) println
+
+"Fibonacci of 20: " print
+fibonacci(20) println
