@@ -47,3 +47,25 @@ converted foreach(tempMap,
             tempMap at("fahrenheit"), "°F = ",
             tempMap at("kelvin"), "K")
 )
+CelsiusToFahrenheit := method(celsius, celsius * 9 / 5 + 32)
+CelsiusToKelvin := method(celsius, celsius + 273.15)
+
+convertTemperatures := method(celsiusList,
+    celsiusList map(celsius,
+        Map clone atPut("celsius", celsius) \
+               atPut("fahrenheit", CelsiusToFahrenheit(celsius)) \
+               atPut("kelvin", CelsiusToKelvin(celsius))
+    )
+)
+
+// Example usage
+sampleTemperatures := list(-40, 0, 25, 100)
+results := convertTemperatures(sampleTemperatures)
+results foreach(result,
+    result at("celsius") print
+    "°C = " print
+    result at("fahrenheit") print
+    "°F = " print
+    result at("kelvin") print
+    "K" println
+)
