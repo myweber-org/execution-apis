@@ -36,3 +36,15 @@ FileProcessor := Object clone do(
 processor := FileProcessor clone
 result := processor process("data.txt", block(content, content split("\n") size))
 result println
+FileProcessor := Object clone do(
+    _cache := Map clone
+
+    process := method(path,
+        if(_cache hasKey(path) not,
+            _cache atPut(path, File with(path) openForReading contents)
+        )
+        _cache at(path)
+    )
+
+    clearCache := method(_cache empty)
+)
