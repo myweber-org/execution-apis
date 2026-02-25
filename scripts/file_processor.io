@@ -1,34 +1,42 @@
 
 FileProcessor := Object clone do(
-    read := method(path,
+    readFile := method(path,
         file := File with(path)
         if(file exists,
-            file openForReading contents
-        ,
+            file openForReading
+            content := file readToEnd
+            file close
+            content,
             Exception raise("File not found: #{path}" interpolate)
         )
     )
     
-    write := method(path, content,
+    writeFile := method(path, content,
         file := File with(path)
         file remove
-        file openForUpdating write(content) close
-        content size
+        file openForUpdating
+        file write(content)
+        file close
+        file path
     )
     
-    append := method(path, content,
+    appendToFile := method(path, content,
         file := File with(path)
-        if(file exists not, file create)
-        file openForAppending write(content) close
-        content size
+        file openForAppending
+        file write(content)
+        file close
+        file path
     )
     
-    exists := method(path,
+    fileExists := method(path,
         File with(path) exists
     )
     
-    size := method(path,
+    getFileSize := method(path,
         file := File with(path)
-        if(file exists, file size, 0)
+        if(file exists,
+            file size,
+            Exception raise("File not found: #{path}" interpolate)
+        )
     )
 )
