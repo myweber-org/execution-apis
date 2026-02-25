@@ -53,4 +53,28 @@ server handleSocket := method(socket,
 )
 
 server start
-writeln("Server running at http://localhost:8080/")
+writeln("Server running at http://localhost:8080/")#!/usr/bin/env io
+
+HttpServer := Object clone do(
+    handleSocket := method(socket,
+        request := socket readLine
+        "Received request: #{request}" interpolate println
+
+        response := "HTTP/1.1 200 OK\r\n"
+        response = response .. "Content-Type: text/plain\r\n"
+        response = response .. "Connection: close\r\n\r\n"
+        response = response .. "Hello, World!"
+
+        socket write(response)
+        socket close
+    )
+)
+
+server := HttpServer clone
+server setPort(8080)
+server handleRequest := method(socket,
+    server handleSocket(socket)
+)
+
+"Server starting on port 8080" println
+server start
