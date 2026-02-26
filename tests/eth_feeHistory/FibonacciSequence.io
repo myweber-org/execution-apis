@@ -82,3 +82,25 @@ fib := method(n,
 for(i, 0, 10, 
     fib(i) println
 )
+Fibonacci := Object clone
+Fibonacci memo := Map clone
+Fibonacci fib := method(n,
+    if (memo hasKey(n), return memo at(n))
+    if (n <= 1, return n)
+    result := fib(n - 1) + fib(n - 2)
+    memo atPut(n, result)
+    result
+)
+
+SequenceGenerator := Object clone
+SequenceGenerator generate := method(count,
+    result := List clone
+    for(i, 0, count - 1,
+        result append(Fibonacci fib(i))
+    )
+    result
+)
+
+generator := SequenceGenerator clone
+sequence := generator generate(20)
+sequence foreach(i, v, writeln("Fibonacci[", i, "] = ", v))
