@@ -63,3 +63,6 @@ crawler := Url with("https://example.com")
 html := crawler fetch
 title := crawler extractTitle(html)
 ("Title: " .. title) println
+URL := "https://www.example.com"
+title := URL fetch asXML at("head") at("title") asString
+title println
