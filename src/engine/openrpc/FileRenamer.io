@@ -90,3 +90,47 @@ if(isLaunchScript,
         "Usage: io FileRenamer.io <directory> <prefix>" println
     )
 )
+FileRenamer := Object clone do(
+    renameWithTimestamp := method(path,
+        if(File with(path) exists not, return "File not found")
+        
+        originalFile := File with(path)
+        timestamp := Date clone now asString("%Y%m%d_%H%M%S")
+        extension := originalFile name split(".") last
+        baseName := originalFile name split(".") slice(0, -1) join(".")
+        
+        newName := "#{timestamp}_#{baseName}.#{extension}" interpolate
+        newPath := originalFile parentPath pathComponent(newName)
+        
+        originalFile renameTo(newPath)
+        return "Renamed to: #{newPath}" interpolate
+    )
+    
+    processDirectory := method(dirPath,
+        directory := Directory with(dirPath)
+        if(directory exists not, return "Directory not found")
+        
+        results := list()
+        directory files foreach(file,
+            if(file isDirectory not,
+                result := renameWithTimestamp(file path)
+                results append(result)
+            )
+        )
+        return results join("\n")
+    )
+)
+
+if(isLaunchScript,
+    args := System args
+    if(args size == 2,
+        path := args at(1)
+        if(Directory with(path) exists,
+            FileRenamer processDirectory(path) println
+        ,
+            FileRenamer renameWithTimestamp(path) println
+        )
+    ,
+        "Usage: #{args at(0)} <file_or_directory_path>" interpolate println
+    )
+)
