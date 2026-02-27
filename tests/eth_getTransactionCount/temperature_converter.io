@@ -76,3 +76,34 @@ Kelvin toFahrenheit := method((self - 273.15) * 9 / 5 + 32)
 
 "300 Kelvin in Celsius: " print
 (300 Kelvin toCelsius) println
+CelsiusToFahrenheit := method(celsius, celsius * 9 / 5 + 32)
+CelsiusToKelvin := method(celsius, celsius + 273.15)
+
+TemperatureConverter := Object clone do(
+    convert := method(value, unit,
+        if(unit == "CtoF", return CelsiusToFahrenheit(value))
+        if(unit == "CtoK", return CelsiusToKelvin(value))
+        Exception raise("Unsupported conversion unit: " .. unit)
+    )
+    
+    displayConversions := method(celsiusValue,
+        fahrenheit := CelsiusToFahrenheit(celsiusValue)
+        kelvin := CelsiusToKelvin(celsiusValue)
+        
+        ("Input: " .. celsiusValue .. "°C") println
+        ("Fahrenheit: " .. fahrenheit .. "°F") println
+        ("Kelvin: " .. kelvin .. "K") println
+        "" println
+    )
+)
+
+// Example usage
+converter := TemperatureConverter clone
+converter displayConversions(0)
+converter displayConversions(100)
+converter displayConversions(-40)
+
+// Test individual conversions
+"Testing individual conversions:" println
+("0°C to Fahrenheit: " .. converter convert(0, "CtoF")) println
+("100°C to Kelvin: " .. converter convert(100, "CtoK")) println
