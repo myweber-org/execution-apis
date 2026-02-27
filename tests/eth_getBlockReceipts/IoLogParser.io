@@ -74,3 +74,23 @@ module: Database"
 processor := LogProcessor clone
 result := processor processLogFile(testLog)
 result println
+LogParser := Object clone do(
+    parseFile := method(path,
+        file := File with(path) openForReading
+        lines := file readLines
+        file close
+        lines map(line, line strip split(" "))
+    )
+    
+    filterByLevel := method(logs, level,
+        logs select(log, log at(2) asLowercase containsSeq(level asLowercase))
+    )
+    
+    countErrors := method(logs,
+        logs select(log, log at(2) asLowercase containsSeq("error")) size
+    )
+    
+    getTimestamps := method(logs,
+        logs map(log, log at(0) .. " " .. log at(1))
+    )
+)
