@@ -61,3 +61,66 @@ encrypted := OpenSSL encrypt(plaintext, password)
 decrypted := OpenSSL decrypt(encrypted, password)
 decrypted println // Should match original plaintext
 */
+OpenSSL do(
+    // Generate random initialization vector
+    randomIV := method(size,
+        File with("/dev/urandom") openForReading readBufferOfLength(size)
+    )
+
+    // Encrypt data using AES-256-CBC
+    encrypt := method(data, password,
+        iv := randomIV(16)
+        key := EVP_BytesToKey(EVP_aes_256_cbc, EVP_sha256, nil, password, 1, nil, nil)
+        
+        ctx := EVP_CIPHER_CTX_new
+        EVP_EncryptInit_ex(ctx, EVP_aes_256_cbc, nil, key, iv)
+        
+        out := List clone
+        out append(iv)
+        
+        buffer := Buffer clone
+        EVP_EncryptUpdate(ctx, buffer, data)
+        out append(buffer)
+        
+        finalBuffer := Buffer clone
+        EVP_EncryptFinal_ex(ctx, finalBuffer)
+        out append(finalBuffer)
+        
+        EVP_CIPHER_CTX_free(ctx)
+        out join
+    )
+
+    // Decrypt data using AES-256-CBC
+    decrypt := method(encryptedData, password,
+        iv := encryptedData slice(0, 16)
+        ciphertext := encryptedData slice(16)
+        
+        key := EVP_BytesToKey(EVP_aes_256_cbc, EVP_sha256, nil, password, 1, nil, nil)
+        
+        ctx := EVP_CIPHER_CTX_new
+        EVP_DecryptInit_ex(ctx, EVP_aes_256_cbc, nil, key, iv)
+        
+        out := List clone
+        buffer := Buffer clone
+        EVP_DecryptUpdate(ctx, buffer, ciphertext)
+        out append(buffer)
+        
+        finalBuffer := Buffer clone
+        EVP_DecryptFinal_ex(ctx, finalBuffer)
+        out append(finalBuffer)
+        
+        EVP_CIPHER_CTX_free(ctx)
+        out join
+    )
+)
+
+// Example usage (commented out in actual file)
+/*
+plaintext := "Sensitive data to encrypt"
+password := "strong_password_here"
+
+encrypted := OpenSSL encrypt(plaintext, password)
+decrypted := OpenSSL decrypt(encrypted, password)
+
+decrypted println // Should output: Sensitive data to encrypt
+*/
