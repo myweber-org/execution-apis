@@ -193,3 +193,91 @@ testData := Map clone do(
 parsed := JsonParser parse("{\"test\": 123}")
 prettyJson := JsonParser stringify(testData, true)
 isValid := JsonParser validate("{\"broken\": json}")
+JsonParser := Object clone do(
+    parse := method(jsonString,
+        try(
+            doString("(" .. jsonString .. ")")
+        ) catch(Exception,
+            Exception raise("Invalid JSON: " .. Exception error)
+        )
+    )
+    
+    stringify := method(obj, pretty := false,
+        if(pretty,
+            prettyPrint(obj, 0)
+        ,
+            compactPrint(obj)
+        )
+    )
+    
+    prettyPrint := method(obj, indent,
+        spaces := "  " repeated(indent)
+        nextIndent := indent + 1
+        
+        if(obj isKindOf(List),
+            "[\n" ..
+            obj map(v, 
+                spaces .. "  " .. prettyPrint(v, nextIndent)
+            ) join(",\n") ..
+            "\n" .. spaces .. "]"
+        ) elseif(obj isKindOf(Map),
+            "{\n" ..
+            obj keys map(k,
+                spaces .. "  \"" .. k .. "\": " .. prettyPrint(obj at(k), nextIndent)
+            ) join(",\n") ..
+            "\n" .. spaces .. "}"
+        ) elseif(obj isKindOf(Sequence),
+            "\"" .. obj asMutable escape .. "\""
+        ) elseif(obj isKindOf(Number),
+            obj asString
+        ) elseif(obj isNil,
+            "null"
+        ) elseif(obj isKindOf(True) or obj isKindOf(False),
+            obj asString
+        ) else(
+            "\"" .. obj asString asMutable escape .. "\""
+        )
+    )
+    
+    compactPrint := method(obj,
+        if(obj isKindOf(List),
+            "[" .. obj map(compactPrint) join(",") .. "]"
+        ) elseif(obj isKindOf(Map),
+            "{" .. obj keys map(k,
+                "\"" .. k .. "\":" .. compactPrint(obj at(k))
+            ) join(",") .. "}"
+        ) elseif(obj isKindOf(Sequence),
+            "\"" .. obj asMutable escape .. "\""
+        ) elseif(obj isKindOf(Number),
+            obj asString
+        ) elseif(obj isNil,
+            "null"
+        ) elseif(obj isKindOf(True) or obj isKindOf(False),
+            obj asString
+        ) else(
+            "\"" .. obj asString asMutable escape .. "\""
+        )
+    )
+)
+
+JsonParserTest := Object clone do(
+    run := method(
+        testJson := "{\"name\":\"John\",\"age\":30,\"cities\":[\"New York\",\"London\"]}"
+        
+        parsed := JsonParser parse(testJson)
+        "Parsed object: " println
+        parsed asJson println
+        
+        "Pretty printed:" println
+        pretty := JsonParser stringify(parsed, true)
+        pretty println
+        
+        "Compact:" println
+        compact := JsonParser stringify(parsed)
+        compact println
+    )
+)
+
+if(isLaunchScript,
+    JsonParserTest run
+)
