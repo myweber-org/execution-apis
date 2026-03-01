@@ -30,3 +30,41 @@ FileProcessor := Object clone do(
         Map clone atPut("totalLines", lines) atPut("filteredLines", filtered size) atPut("matches", filtered)
     )
 )
+FileProcessor := Object clone do(
+    processFile := method(path,
+        file := File with(path) openForReading
+        lines := file readLines
+        file close
+
+        wordCount := Map clone
+        lines foreach(line,
+            words := line split
+            words foreach(word,
+                word = word asLowercase strip
+                if(word size > 0,
+                    wordCount atPut(word, wordCount at(word) ifNilEval(0) + 1)
+                )
+            )
+        )
+
+        return Map clone do(
+            atPut("totalLines", lines size)
+            atPut("totalWords", wordCount values sum)
+            atPut("wordFrequency", wordCount)
+        )
+    )
+
+    printStatistics := method(stats,
+        "File Statistics:" println
+        ("Total lines: " .. stats at("totalLines")) println
+        ("Total words: " .. stats at("totalWords")) println
+        "\nWord frequency:" println
+        stats at("wordFrequency") foreach(word, count,
+            (word .. ": " .. count) println
+        )
+    )
+)
+
+// Example usage (commented out):
+// stats := FileProcessor processFile("sample.txt")
+// FileProcessor printStatistics(stats)
