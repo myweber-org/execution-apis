@@ -1,48 +1,61 @@
 
 Matrix := Object clone do(
-    dim := method(self size .. self at(0) size)
+    data ::= nil
+    rows ::= 0
+    cols ::= 0
     
-    mul := method(other,
-        if(self dim != other dim,
-            Exception raise("Matrix dimensions do not match for multiplication")
+    init := method(arr,
+        self data = arr
+        self rows = arr size
+        self cols = if(arr size > 0, arr at(0) size, 0)
+        self
+    )
+    
+    dims := method(list(rows, cols))
+    
+    at := method(i, j,
+        data at(i) at(j)
+    )
+    
+    multiply := method(other,
+        if(cols != other rows,
+            Exception raise("Matrix dimension mismatch: #{cols} != #{other rows}" interpolate)
         )
         
         result := List clone
-        self foreach(i, row,
-            newRow := List clone
-            other at(0) size repeat(j,
+        for(i, 0, rows - 1,
+            row := List clone
+            for(j, 0, other cols - 1,
                 sum := 0
-                row foreach(k, value,
-                    sum = sum + (value * other at(k) at(j))
+                for(k, 0, cols - 1,
+                    sum = sum + (at(i, k) * other at(k, j))
                 )
-                newRow append(sum)
+                row append(sum)
             )
-            result append(newRow)
+            result append(row)
         )
-        Matrix clone setProto(result)
+        
+        Matrix clone init(result)
     )
     
-    print := method(
-        self foreach(row,
-            row foreach(value,
-                value asString print
-                " " print
-            )
-            "" println
-        )
+    toString := method(
+        data map(row, row join(" ")) join("\n")
     )
 )
 
-// Example usage
-a := Matrix clone setProto(list(list(1,2), list(3,4)))
-b := Matrix clone setProto(list(list(5,6), list(7,8)))
+createMatrix := method(arr,
+    Matrix clone init(arr map(row, row asList))
+)
 
-"Matrix A:" println
-a print
+a := createMatrix(list(list(1,2,3), list(4,5,6)))
+b := createMatrix(list(list(7,8), list(9,10), list(11,12)))
 
-"Matrix B:" println
-b print
+result := a multiply(b)
+result toString println
 
-"Result of A * B:" println
-c := a mul(b)
-c print
+try(
+    invalid := createMatrix(list(list(1,2), list(3,4)))
+    a multiply(invalid)
+) catch(Exception,
+    ("Error: " .. error) println
+)
