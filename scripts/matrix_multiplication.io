@@ -88,3 +88,47 @@ b print
 writeln("Result A * B:")
 c := a multiply(b)
 c print
+Matrix := Object clone do(
+    dim := method(self size .. ", " .. self at(0) size)
+    
+    * := method(other,
+        if(self at(0) size != other size,
+            Exception raise("Matrix dimension mismatch: " .. self dim .. " vs " .. other dim)
+        )
+        
+        result := List clone
+        self foreach(i, row,
+            newRow := List clone
+            other at(0) foreach(j, col,
+                sum := 0
+                row foreach(k, value,
+                    sum = sum + (value * other at(k) at(j))
+                )
+                newRow append(sum)
+            )
+            result append(newRow)
+        )
+        result
+    )
+)
+
+// Test matrices
+a := list(list(1,2,3), list(4,5,6))
+b := list(list(7,8), list(9,10), list(11,12))
+
+"Matrix A: " println
+a println
+
+"Matrix B: " println
+b println
+
+"Result of A * B:" println
+result := a * b
+result println
+
+// Test error case
+c := list(list(1,2), list(3,4))
+"Attempting invalid multiplication:" println
+e := try(c * a) catch(Exception, 
+    "Caught error: " .. error coroutine message println
+)
