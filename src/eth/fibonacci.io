@@ -182,3 +182,10 @@ fibonacci(10) println
 
 "Fibonacci of 20: " print
 fibonacci(20) println
+fib := method(n,
+    if(n <= 1, n, fib(n - 1) + fib(n - 2))
+)
+
+for(i, 0, 10,
+    fib(i) println
+)
