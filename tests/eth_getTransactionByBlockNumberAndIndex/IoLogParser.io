@@ -114,3 +114,54 @@ parser := LogParser clone
 analysis := parser analyzeLog(testLog)
 report := parser formatReport(analysis)
 report println
+LogParser := Object clone do(
+    parseLog := method(logString,
+        lines := logString split("\n")
+        parsedLines := lines map(line,
+            parts := line split(" - ")
+            if(parts size == 3,
+                Map with(
+                    "timestamp", parts at(0),
+                    "level", parts at(1),
+                    "message", parts at(2)
+                ),
+                Map with("raw", line)
+            )
+        )
+        parsedLines
+    )
+    
+    filterByLevel := method(parsedLogs, level,
+        parsedLogs select(log, log hasKey("level") and log at("level") == level)
+    )
+    
+    countByLevel := method(parsedLogs,
+        counts := Map clone
+        parsedLogs foreach(log,
+            if(log hasKey("level"),
+                level := log at("level")
+                currentCount := if(counts hasKey(level), counts at(level), 0)
+                counts atPut(level, currentCount + 1)
+            )
+        )
+        counts
+    )
+    
+    findErrors := method(parsedLogs,
+        self filterByLevel(parsedLogs, "ERROR")
+    )
+)
+
+parser := LogParser clone
+sampleLog := "2023-10-05T10:30:00 - INFO - Application started
+2023-10-05T10:31:15 - WARNING - High memory usage detected
+2023-10-05T10:32:00 - ERROR - Database connection failed
+2023-10-05T10:33:45 - INFO - Retrying connection"
+
+parsed := parser parseLog(sampleLog)
+errorLogs := parser findErrors(parsed)
+levelCounts := parser countByLevel(parsed)
+
+"Parsed #{parsed size} log entries" println
+"Found #{errorLogs size} error entries" println
+levelCounts foreach(level, count, "#{level}: #{count}" println)
