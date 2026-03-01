@@ -185,3 +185,38 @@ if(processor exists(testPath) not,
 processor appendFile(testPath, "Appended line\n")
 writeln("File content: ", processor readFile(testPath))
 writeln("File size: ", processor size(testPath), " bytes")
+FileProcessor := Object clone do(
+    readFile := method(path,
+        file := File with(path)
+        if(file exists,
+            file openForReading contents
+        ,
+            Exception raise("File not found: " .. path)
+        )
+    )
+    
+    writeFile := method(path, content,
+        file := File with(path)
+        file remove
+        file openForUpdating write(content) close
+    )
+    
+    appendToFile := method(path, content,
+        file := File with(path)
+        file openForAppending write(content) close
+    )
+    
+    fileExists := method(path,
+        File with(path) exists
+    )
+)
+
+processor := FileProcessor clone
+if(processor fileExists("test.txt") not,
+    processor writeFile("test.txt", "Initial content\n")
+)
+
+processor appendToFile("test.txt", "Appended line\n")
+
+content := processor readFile("test.txt")
+content println
