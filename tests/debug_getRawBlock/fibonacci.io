@@ -15,3 +15,25 @@ fib := method(n,
 )
 
 for(i, 0, 10, write(fib(i), " "))
+fib := method(n,
+    memo := Map clone
+    memo atPut(0, 0)
+    memo atPut(1, 1)
+    
+    compute := method(k,
+        if(memo hasKey(k),
+            memo at(k),
+            result := compute(k-1) + compute(k-2)
+            memo atPut(k, result)
+            result
+        )
+    )
+    
+    compute(n)
+)
+
+"Testing Fibonacci sequence:" println
+for(i, 0, 10, 
+    (fib(i) asString .. " ") print
+)
+"" println
