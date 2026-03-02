@@ -91,3 +91,23 @@ fib := method(n,
 for(i, 0, 10, 1,
     (i .. ": " .. fib(i)) println
 )
+fibonacci := method(n,
+    cache := Map clone
+    cache atPut(0, 0)
+    cache atPut(1, 1)
+    
+    fib := method(n,
+        if(cache hasKey(n),
+            cache at(n),
+            result := fib(n-1) + fib(n-2)
+            cache atPut(n, result)
+            result
+        )
+    )
+    
+    fib(n)
+)
+
+fibonacci(10) println
+fibonacci(15) println
+fibonacci(20) println
