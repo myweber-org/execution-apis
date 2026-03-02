@@ -60,3 +60,19 @@ for(i, 0, 9,
     " " print
 )
 "" println
+fib := method(n,
+    memo := Map clone
+    memo atPut(0, 0)
+    memo atPut(1, 1)
+    
+    fibHelper := block(n,
+        if(memo hasKey(n), return memo at(n))
+        result := fibHelper call(n-1) + fibHelper call(n-2)
+        memo atPut(n, result)
+        result
+    )
+    
+    fibHelper call(n)
+)
+
+for(i, 0, 10, write(fib(i), " "))
