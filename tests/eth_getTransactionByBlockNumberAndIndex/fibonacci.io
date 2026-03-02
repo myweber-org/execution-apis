@@ -4,32 +4,18 @@ fibonacci := method(n,
     memo atPut(0, 0)
     memo atPut(1, 1)
     
-    fib := method(x,
-        if(memo hasKey(x),
-            memo at(x),
-            result := fib(x-1) + fib(x-2)
-            memo atPut(x, result)
+    recursive := method(i,
+        if(memo hasKey(i), 
+            memo at(i),
+            result := recursive(i-1) + recursive(i-2)
+            memo atPut(i, result)
             result
         )
     )
     
-    fib(n)
+    recursive(n)
 )
 
-"First 10 Fibonacci numbers:" println
-for(i, 0, 9,
-    fibonacci(i) print
-    " " print
+for(i, 0, 10, 
+    fibonacci(i) println
 )
-"" println
-fibonacci := method(n,
-    if(n <= 1, return n)
-    return fibonacci(n - 1) + fibonacci(n - 2)
-)
-
-"Fibonacci sequence (first 10 numbers):" println
-for(i, 0, 9,
-    fibonacci(i) print
-    " " print
-)
-"" println
