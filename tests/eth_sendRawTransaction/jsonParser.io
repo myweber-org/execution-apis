@@ -242,3 +242,63 @@ if(isLaunchScript,
     "\nPretty printed:" println
     JsonParser prettyPrint(testJson)
 )
+JsonParser := Object clone do(
+    parse := method(jsonString,
+        try(
+            doString("(" .. jsonString .. ")")
+        ) catch(e,
+            Exception raise("Invalid JSON: " .. e error)
+        )
+    )
+
+    stringify := method(obj, pretty := false,
+        if(pretty,
+            _stringifyPretty(obj, "")
+        ,
+            _stringify(obj)
+        )
+    )
+
+    _stringify := method(obj,
+        if(obj isNil, return "null")
+        if(obj isKindOf(Number), return obj asString)
+        if(obj isKindOf(Sequence), return "\"" .. obj asString escape .. "\"")
+        if(obj isKindOf(List),
+            items := list()
+            obj foreach(i, v, items append(_stringify(v)))
+            return "[" .. items join(",") .. "]"
+        )
+        if(obj isKindOf(Map),
+            pairs := list()
+            obj foreach(k, v,
+                pairs append("\"" .. k asString escape .. "\":" .. _stringify(v))
+            )
+            return "{" .. pairs join(",") .. "}"
+        )
+        Exception raise("Unsupported type for JSON serialization")
+    )
+
+    _stringifyPretty := method(obj, indent,
+        newIndent := indent .. "  "
+        if(obj isNil, return "null")
+        if(obj isKindOf(Number), return obj asString)
+        if(obj isKindOf(Sequence), return "\"" .. obj asString escape .. "\"")
+        if(obj isKindOf(List),
+            if(obj isEmpty, return "[]")
+            items := list()
+            obj foreach(i, v,
+                items append(newIndent .. _stringifyPretty(v, newIndent))
+            )
+            return "[\n" .. items join(",\n") .. "\n" .. indent .. "]"
+        )
+        if(obj isKindOf(Map),
+            if(obj isEmpty, return "{}")
+            pairs := list()
+            obj foreach(k, v,
+                pairs append(newIndent .. "\"" .. k asString escape .. "\": " .. _stringifyPretty(v, newIndent))
+            )
+            return "{\n" .. pairs join(",\n") .. "\n" .. indent .. "}"
+        )
+        Exception raise("Unsupported type for JSON serialization")
+    )
+)
