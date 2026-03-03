@@ -90,3 +90,52 @@ WebCrawler := Object clone do(
         )
     )
 )
+WebCrawler := Object clone do(
+    fetchHtml := method(url,
+        url asURL fetch
+    )
+
+    extractLinks := method(html,
+        links := List clone
+        html findallSeq("<a href=\"") foreach(start,
+            end := html findSeq("\"", start + 9)
+            if(end, links append(html slice(start + 9, end)))
+        )
+        links
+    )
+
+    crawl := method(startUrl, maxDepth := 2,
+        visited := Map clone
+        toVisit := list(list(startUrl, 1))
+        
+        while(toVisit size > 0,
+            current := toVisit removeFirst
+            url := current at(0)
+            depth := current at(1)
+            
+            if(visited at(url) not and depth <= maxDepth,
+                visited atPut(url, true)
+                
+                html := self fetchHtml(url)
+                if(html,
+                    links := self extractLinks(html)
+                    links foreach(link,
+                        absoluteUrl := if(link beginsWithSeq("http"), 
+                            link, 
+                            url asURL appendPath(link) asString
+                        )
+                        toVisit append(list(absoluteUrl, depth + 1))
+                    )
+                    
+                    ("Crawled: " .. url .. " found " .. links size .. " links") println
+                )
+            )
+        )
+        
+        visited keys
+    )
+)
+
+crawler := WebCrawler clone
+urls := crawler crawl("http://example.com", 1)
+("Total URLs crawled: " .. urls size) println
