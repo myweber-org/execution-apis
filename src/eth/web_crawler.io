@@ -66,3 +66,72 @@ if(isLaunchScript,
     crawler := WebCrawler clone
     crawler crawl("example.com", 1)
 )
+WebCrawler := Object clone do(
+    fetch := method(url,
+        request := URL with(url) fetch
+        if(request isError,
+            Exception raise("Failed to fetch URL: " .. url)
+        )
+        request body
+    )
+    
+    extractLinks := method(html,
+        links := List clone
+        html findSeq("<a href=\"") repeat(
+            startPos := html findSeq("<a href=\"") 
+            if(startPos isNil, break)
+            
+            html removeSeq(0, startPos + 9)
+            endPos := html findSeq("\"")
+            if(endPos isNil, break)
+            
+            link := html slice(0, endPos)
+            links append(link)
+            html removeSeq(0, endPos + 1)
+        )
+        links
+    )
+    
+    crawl := method(url, maxDepth,
+        self crawlImpl(url, maxDepth, List clone)
+    )
+    
+    crawlImpl := method(url, depth, visited,
+        if(depth < 1 or visited contains(url), return List clone)
+        
+        visited append(url)
+        result := Map clone atPut("url", url)
+        
+        try(
+            html := self fetch(url)
+            result atPut("content", html slice(0, 100) .. "...")
+            
+            links := self extractLinks(html)
+            result atPut("links", links)
+            
+            childResults := List clone
+            links foreach(link,
+                fullUrl := if(link beginsWithSeq("http"), 
+                    link, 
+                    url .. (if(url endsWithSeq("/"), "", "/")) .. link
+                )
+                childResults appendSeq(self crawlImpl(fullUrl, depth - 1, visited))
+            )
+            result atPut("children", childResults)
+        ) catch(Exception,
+            result atPut("error", "Failed to crawl: " .. Exception description)
+        )
+        
+        list(result)
+    )
+)
+
+// Example usage
+crawler := WebCrawler clone
+results := crawler crawl("https://example.com", 2)
+results foreach(result,
+    ("URL: " .. result at("url")) println
+    ("Content preview: " .. (result at("content") ?: "No content")) println
+    ("Links found: " .. (result at("links") size ?: 0)) println
+    "" println
+)
