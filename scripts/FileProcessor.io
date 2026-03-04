@@ -47,3 +47,28 @@ FileProcessor := Object clone do(
 // Example usage (commented out)
 // processor := FileProcessor clone
 // processor printFileInfo("example.txt")
+FileProcessor := Object clone do(
+    countLines := method(filePath,
+        file := File with(filePath)
+        if(file exists not, return 0)
+        file openForReading
+        lines := file readLines size
+        file close
+        lines
+    )
+
+    filterLines := method(filePath, pattern,
+        file := File with(filePath)
+        if(file exists not, return list())
+        file openForReading
+        matchingLines := file readLines select(line, line contains(pattern))
+        file close
+        matchingLines
+    )
+
+    processFile := method(filePath, pattern,
+        totalLines := self countLines(filePath)
+        matchingLines := self filterLines(filePath, pattern)
+        Map clone atPut("totalLines", totalLines) atPut("matchingLines", matchingLines)
+    )
+)
