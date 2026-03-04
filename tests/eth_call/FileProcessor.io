@@ -147,3 +147,53 @@ FileProcessor := Object clone do(
         File with(path) exists
     )
 )
+FileProcessor := Object clone do(
+    processFile := method(path,
+        file := File with(path) openForReading
+        lines := file readLines
+        file close
+
+        lineCount := lines size
+        wordCount := 0
+        wordFrequency := Map clone
+
+        lines foreach(line,
+            words := line split
+            wordCount = wordCount + words size
+            words foreach(word,
+                cleanWord := word asLowercase strip
+                if(cleanWord size > 0,
+                    wordFrequency atPut(cleanWord, 
+                        wordFrequency at(cleanWord) ifNilEval(0) + 1
+                    )
+                )
+            )
+        )
+
+        return Map clone do(
+            atPut("path", path)
+            atPut("lineCount", lineCount)
+            atPut("wordCount", wordCount)
+            atPut("wordFrequency", wordFrequency)
+        )
+    )
+
+    printStatistics := method(stats,
+        ("File: " .. stats at("path")) println
+        ("Total lines: " .. stats at("lineCount")) println
+        ("Total words: " .. stats at("wordCount")) println
+        
+        ("\nTop 5 frequent words:") println
+        sortedWords := stats at("wordFrequency") asList sortBy(value, value at(1)) reverse
+        sortedWords slice(0, 4) foreach(pair,
+            (pair at(0) .. ": " .. pair at(1)) println
+        )
+    )
+)
+
+// Example usage
+if(System args size > 0,
+    processor := FileProcessor clone
+    stats := processor processFile(System args at(0))
+    processor printStatistics(stats)
+)
