@@ -63,3 +63,73 @@ b print
 "Result of A * B:" println
 c := a multiply(b)
 c print
+Matrix := Object clone
+Matrix dim := method(x, y,
+    m := Matrix clone
+    m data := List clone
+    for(i, 1, y,
+        row := List clone
+        for(j, 1, x, row append(0))
+        m data append(row)
+    )
+    m
+)
+
+Matrix set := method(x, y, value,
+    data at(y) atPut(x, value)
+    self
+)
+
+Matrix get := method(x, y,
+    data at(y) at(x)
+)
+
+Matrix rows := method(data size)
+Matrix cols := method(data at(0) size)
+
+Matrix print := method(
+    data foreach(row,
+        row foreach(element,
+            element asString alignLeft(4, " ") print
+        )
+        "" println
+    )
+)
+
+Matrix multiply := method(other,
+    if(cols != other rows, return nil)
+    
+    result := Matrix dim(other cols, rows)
+    
+    for(i, 0, rows - 1,
+        for(j, 0, other cols - 1,
+            sum := 0
+            for(k, 0, cols - 1,
+                sum = sum + (get(k, i) * other get(j, k))
+            )
+            result set(j, i, sum)
+        )
+    )
+    
+    result
+)
+
+// Example usage
+a := Matrix dim(2, 3)
+a set(0, 0, 1) set(1, 0, 2)
+a set(0, 1, 3) set(1, 1, 4)
+a set(0, 2, 5) set(1, 2, 6)
+
+b := Matrix dim(3, 2)
+b set(0, 0, 7) set(1, 0, 8) set(2, 0, 9)
+b set(0, 1, 10) set(1, 1, 11) set(2, 1, 12)
+
+"Matrix A:" println
+a print
+
+"Matrix B:" println
+b print
+
+"Result of A * B:" println
+c := a multiply(b)
+c print
