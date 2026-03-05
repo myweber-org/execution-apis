@@ -1,144 +1,42 @@
 
 FileProcessor := Object clone do(
-    readFile := method(path,
+    countLines := method(path,
         file := File with(path)
-        if(file exists,
-            file openForReading contents
-        ,
-            Exception raise("File not found: #{path}" interpolate)
-        )
-    )
-    
-    writeFile := method(path, content,
-        file := File with(path)
-        file remove
-        file openForUpdating write(content) close
-    )
-    
-    appendToFile := method(path, content,
-        file := File with(path)
-        file openForAppending write(content) close
-    )
-    
-    fileExists := method(path,
-        File with(path) exists
-    )
-    
-    getFileSize := method(path,
-        file := File with(path)
-        if(file exists, file size, 0)
-    )
-)
-
-processor := FileProcessor clone
-testPath := "test_output.txt"
-
-if(processor fileExists(testPath) not,
-    processor writeFile(testPath, "Initial content\n")
-)
-
-processor appendToFile(testPath, "Appended line\n")
-
-fileContent := processor readFile(testPath)
-fileSize := processor getFileSize(testPath)
-
-("File content: " .. fileContent) println
-("File size: " .. fileSize .. " bytes") println
-FileProcessor := Object clone do(
-    readFile := method(path,
-        file := File with(path)
-        if(file exists not, return nil)
+        if(file exists not, return 0)
         file openForReading
-        content := file readToEnd
+        count := 0
+        file foreachLine(line, count = count + 1)
         file close
-        content
+        count
     )
     
-    writeFile := method(path, content,
+    filterLines := method(path, pattern,
+        result := List clone
+        file := File with(path)
+        if(file exists not, return result)
+        file openForReading
+        file foreachLine(line,
+            if(line contains(pattern),
+                result append(line)
+            )
+        )
+        file close
+        result
+    )
+    
+    writeLines := method(path, lines,
         file := File with(path)
         file remove
         file openForUpdating
-        file write(content)
+        lines foreach(line,
+            file write(line, "\n")
+        )
         file close
         self
-    )
-    
-    appendToFile := method(path, content,
-        file := File with(path)
-        file openForAppending
-        file write(content)
-        file close
-        self
-    )
-    
-    fileExists := method(path,
-        File with(path) exists
-    )
-    
-    getFileSize := method(path,
-        file := File with(path)
-        if(file exists not, return 0)
-        file size
     )
 )
 
 processor := FileProcessor clone
-testPath := "test_output.txt"
-
-if(processor fileExists(testPath) not,
-    processor writeFile(testPath, "Initial content\n")
-)
-
-processor appendToFile(testPath, "Appended line\n")
-
-content := processor readFile(testPath)
-size := processor getFileSize(testPath)
-
-"File size: #{size} bytes" interpolate println
-FileProcessor := Object clone
-FileProcessor read := method(path,
-    file := File with(path)
-    file openForReading
-    content := file readToEnd
-    file close
-    content
-)
-
-FileProcessor write := method(path, content,
-    file := File with(path)
-    file remove
-    file openForUpdating
-    file write(content)
-    file close
-)
-
-FileProcessor append := method(path, content,
-    file := File with(path)
-    file openForAppending
-    file write(content)
-    file close
-)
-
-FileProcessor exists := method(path,
-    File exists(path)
-)
-
-FileProcessor delete := method(path,
-    File remove(path)
-)
-FileProcessor := Object clone
-FileProcessor read := method(path,
-    file := File with(path)
-    file openForReading
-    content := file readToEnd
-    file close
-    content
-)
-FileProcessor write := method(path, content,
-    file := File with(path)
-    file remove
-    file openForUpdating
-    file write(content)
-    file close
-    true
-)
+lines := processor filterLines("input.txt", "important")
+count := processor countLines("input.txt")
+processor writeLines("output.txt", lines)
