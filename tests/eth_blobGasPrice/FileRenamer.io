@@ -1,20 +1,31 @@
 
 FileRenamer := Object clone do(
-    renameFiles := method(directoryPath, oldPattern, newPattern,
-        directory := Directory with(directoryPath)
-        if(directory isNil, return "Directory not found.")
-
-        files := directory files select(name containsSeq(oldPattern))
+    renameFiles := method(directoryPath, prefix,
+        files := Directory with(directoryPath) files
+        files sortBy(createdAt)
+        counter := 1
         files foreach(file,
-            newName := file name asMutable replaceSeq(oldPattern, newPattern)
+            extension := if(file name containsSeq("."), 
+                "." .. (file name split(".") last), 
+                ""
+            )
+            newName := prefix .. "_" .. counter asString(100) .. extension
             oldPath := directoryPath .. "/" .. file name
             newPath := directoryPath .. "/" .. newName
-            File rename(oldPath, newPath)
-            writeln("Renamed '", file name, "' to '", newName, "'")
+            if(oldPath != newPath,
+                file moveTo(newPath)
+                writeln("Renamed: ", file name, " -> ", newName)
+            )
+            counter = counter + 1
         )
-        "Renaming complete." println
+        writeln("Renamed ", counter - 1, " files")
     )
 )
 
-// Example usage (commented out)
-// FileRenamer renameFiles(".", "temp_", "archive_")
+if(isLaunchScript,
+    if(System args size == 3,
+        FileRenamer renameFiles(System args at(1), System args at(2))
+    ,
+        writeln("Usage: io FileRenamer.io <directory> <prefix>")
+    )
+)
