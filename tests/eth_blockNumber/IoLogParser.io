@@ -44,3 +44,68 @@ criticalErrors := parser findErrors(parsedLogs)
 "Parsed #{parsedLogs size} log entries" println
 "Found #{errorLogs size} error logs" println
 levelCounts foreach(level, count, "#{level}: #{count}" println)
+LogParser := Object clone do(
+    parseLogFile := method(filePath,
+        file := File with(filePath)
+        if(file exists not, return nil)
+        
+        lines := file readLines
+        parsedLogs := List clone
+        
+        lines foreach(line,
+            if(line containsSeq("ERROR") or line containsSeq("WARNING"),
+                parsedLogs append(Map clone atPut("line", line) atPut("timestamp", Date clone now))
+            )
+        )
+        
+        parsedLogs
+    )
+    
+    analyzeLogs := method(logs,
+        errorCount := 0
+        warningCount := 0
+        
+        logs foreach(log,
+            if(log at("line") containsSeq("ERROR"), errorCount = errorCount + 1)
+            if(log at("line") containsSeq("WARNING"), warningCount = warningCount + 1)
+        )
+        
+        Map clone atPut("total", logs size) atPut("errors", errorCount) atPut("warnings", warningCount)
+    )
+    
+    generateReport := method(analysis,
+        report := "Log Analysis Report\n"
+        report = report .. "=================\n"
+        report = report .. "Total log entries: " .. analysis at("total") asString .. "\n"
+        report = report .. "Error entries: " .. analysis at("errors") asString .. "\n"
+        report = report .. "Warning entries: " .. analysis at("warnings") asString .. "\n"
+        report = report .. "Clean entries: " .. (analysis at("total") - analysis at("errors") - analysis at("warnings")) asString .. "\n"
+        
+        report
+    )
+)
+
+LogParserTest := Object clone do(
+    runTest := method(
+        "Testing LogParser" println
+        
+        testLogs := list(
+            "2023-10-01 INFO: System started",
+            "2023-10-01 ERROR: Connection failed",
+            "2023-10-01 WARNING: High memory usage",
+            "2023-10-01 INFO: Backup completed",
+            "2023-10-01 ERROR: Database timeout"
+        )
+        
+        parser := LogParser clone
+        analysis := parser analyzeLogs(testLogs)
+        report := parser generateReport(analysis)
+        
+        report println
+        "Test completed" println
+    )
+)
+
+if(isLaunchScript,
+    LogParserTest runTest
+)
