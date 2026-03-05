@@ -1,50 +1,34 @@
 
 FileProcessor := Object clone do(
-    cache := Map clone
-
-    process := method(path,
-        if(cache hasKey(path) not,
-            cache atPut(path, File with(path) openForReading contents)
-        )
-        cache at(path)
-    )
-
-    clearCache := method(cache empty)
-)
-FileProcessor := Object clone do(
-    cache := Map clone
-
     readFile := method(path,
-        if(cache hasKey(path),
-            cache at(path),
-            content := File with(path) openForReading contents
-            cache atPut(path, content)
-            content
-        )
+        file := File with(path)
+        if(file exists not, return nil)
+        file openForReading
+        content := file readToEnd
+        file close
+        content
     )
-
-    process := method(path, processor,
+    
+    writeFile := method(path, content,
+        file := File with(path)
+        file remove
+        file openForUpdating
+        file write(content)
+        file close
+        self
+    )
+    
+    countLines := method(path,
         content := self readFile(path)
-        processor call(content)
+        if(content == nil, return 0)
+        content split("\n") size
     )
-
-    clearCache := method(
-        cache removeAll
+    
+    appendToFile := method(path, content,
+        file := File with(path)
+        file openForAppending
+        file write(content)
+        file close
+        self
     )
-)
-
-processor := FileProcessor clone
-result := processor process("data.txt", block(content, content split("\n") size))
-result println
-FileProcessor := Object clone do(
-    _cache := Map clone
-
-    process := method(path,
-        if(_cache hasKey(path) not,
-            _cache atPut(path, File with(path) openForReading contents)
-        )
-        _cache at(path)
-    )
-
-    clearCache := method(_cache empty)
 )
