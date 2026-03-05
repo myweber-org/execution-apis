@@ -41,3 +41,59 @@ analysis := logParser analyzeLog(parsed)
 report := logParser formatReport(analysis)
 
 report println
+LogParser := Object clone do(
+    parseLog := method(logString,
+        lines := logString split("\n")
+        parsedData := Map clone
+        lines foreach(i, line,
+            if(line size > 0,
+                parts := line split(": ")
+                if(parts size == 2,
+                    key := parts at(0)
+                    value := parts at(1)
+                    parsedData atPut(key, value)
+                )
+            )
+        )
+        parsedData
+    )
+    
+    analyzeLog := method(parsedData,
+        analysis := Map clone
+        parsedData keys foreach(key,
+            value := parsedData at(key)
+            if(value containsSeq("ERROR"),
+                analysis atPut("errorCount", analysis at("errorCount", 0) + 1)
+            )
+            if(value containsSeq("WARN"),
+                analysis atPut("warningCount", analysis at("warningCount", 0) + 1)
+            )
+        )
+        analysis
+    )
+    
+    formatReport := method(analysis,
+        report := "Log Analysis Report\n"
+        report = report .. "=================\n"
+        analysis keys foreach(key,
+            report = report .. key .. ": " .. analysis at(key) asString .. "\n"
+        )
+        report
+    )
+)
+
+parser := LogParser clone
+sampleLog := "timestamp: 2023-10-05T14:30:00
+level: INFO
+message: Application started
+timestamp: 2023-10-05T14:31:00
+level: ERROR
+message: Database connection failed
+timestamp: 2023-10-05T14:32:00
+level: WARN
+message: High memory usage detected"
+
+parsed := parser parseLog(sampleLog)
+analysis := parser analyzeLog(parsed)
+report := parser formatReport(analysis)
+report println
