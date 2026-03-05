@@ -21,3 +21,30 @@ fib(10) println
 
 "Fibonacci of 20: " print
 fib(20) println
+fibonacci := Object clone
+fibonacci cache := Map clone
+
+fibonacci get := method(n,
+    if (self cache hasKey(n),
+        return self cache at(n)
+    )
+    
+    if (n <= 1,
+        result := n
+    ,
+        result := self get(n - 1) + self get(n - 2)
+    )
+    
+    self cache atPut(n, result)
+    result
+)
+
+fibonacci sequence := method(n,
+    result := List clone
+    for(i, 0, n, result append(self get(i)))
+    result
+)
+
+fibonacci clearCache := method(
+    self cache = Map clone
+)
