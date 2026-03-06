@@ -1,167 +1,187 @@
 
 JsonParser := Object clone do(
     parse := method(jsonString,
-        if(jsonString isNil or jsonString isEmpty, 
+        if(jsonString isNil or jsonString isEmpty,
             Exception raise("Empty JSON string")
         )
         
         // Remove whitespace
-        trimmed := jsonString strip
+        jsonString := jsonString strip
         
-        if(trimmed at(0) == "{" and trimmed at(-1) == "}", 
-            parseObject(trimmed slice(1, -1))
-        ) elseif(trimmed at(0) == "[" and trimmed at(-1) == "]", 
-            parseArray(trimmed slice(1, -1))
-        ) else(
-            Exception raise("Invalid JSON format")
+        // Parse based on first character
+        if(jsonString beginsWithSeq("{"),
+            return parseObject(jsonString)
         )
+        if(jsonString beginsWithSeq("["),
+            return parseArray(jsonString)
+        )
+        if(jsonString beginsWithSeq("\""),
+            return parseString(jsonString)
+        )
+        
+        // Parse literals
+        if(jsonString == "true", return true)
+        if(jsonString == "false", return false)
+        if(jsonString == "null", return nil)
+        
+        // Parse number
+        if(jsonString asNumber != nil,
+            return jsonString asNumber
+        )
+        
+        Exception raise("Invalid JSON: " .. jsonString)
     )
     
-    parseObject := method(str,
-        obj := Map clone
-        if(str isEmpty, return obj)
+    parseObject := method(jsonString,
+        result := Map clone
+        content := jsonString exSlice(1, -1) strip
         
-        tokens := tokenize(str)
-        i := 0
-        while(i < tokens size,
-            key := tokens at(i)
-            if(key at(0) != "\"", Exception raise("Invalid key: " .. key))
-            key := key slice(1, -1)
+        if(content isEmpty, return result)
+        
+        while(content notEmpty,
+            // Find key
+            quoteIndex := content findSeq("\"")
+            if(quoteIndex == nil,
+                Exception raise("Expected string key in object")
+            )
             
-            if(tokens at(i+1) != ":", Exception raise("Expected colon after key"))
+            endQuoteIndex := content findSeq("\"", quoteIndex + 1)
+            if(endQuoteIndex == nil,
+                Exception raise("Unterminated string key")
+            )
             
-            valueToken := tokens at(i+2)
-            value := parseValue(valueToken)
+            key := content exSlice(quoteIndex + 1, endQuoteIndex)
             
-            obj atPut(key, value)
-            i = i + 3
+            // Find colon
+            colonIndex := content findSeq(":", endQuoteIndex + 1)
+            if(colonIndex == nil,
+                Exception raise("Expected colon after key")
+            )
             
-            if(i < tokens size and tokens at(i) == ",",
-                i = i + 1
+            // Find value
+            valueStart := colonIndex + 1
+            valueEnd := findValueEnd(content, valueStart)
+            
+            valueStr := content exSlice(valueStart, valueEnd) strip
+            value := parse(valueStr)
+            
+            result atPut(key, value)
+            
+            // Check for comma or end
+            if(valueEnd < content size,
+                nextChar := content at(valueEnd)
+                if(nextChar == ',',
+                    content = content exSlice(valueEnd + 1) strip
+                ) else if(nextChar == '}',
+                    break
+                ) else (
+                    Exception raise("Expected comma or closing brace")
+                )
+            ) else (
+                break
             )
         )
-        obj
+        
+        return result
     )
     
-    parseArray := method(str,
-        arr := List clone
-        if(str isEmpty, return arr)
+    parseArray := method(jsonString,
+        result := List clone
+        content := jsonString exSlice(1, -1) strip
         
-        tokens := tokenize(str)
-        i := 0
-        while(i < tokens size,
-            value := parseValue(tokens at(i))
-            arr append(value)
-            i = i + 1
+        if(content isEmpty, return result)
+        
+        while(content notEmpty,
+            valueEnd := findValueEnd(content, 0)
+            valueStr := content exSlice(0, valueEnd) strip
+            value := parse(valueStr)
             
-            if(i < tokens size and tokens at(i) == ",",
-                i = i + 1
+            result append(value)
+            
+            if(valueEnd < content size,
+                nextChar := content at(valueEnd)
+                if(nextChar == ',',
+                    content = content exSlice(valueEnd + 1) strip
+                ) else if(nextChar == ']',
+                    break
+                ) else (
+                    Exception raise("Expected comma or closing bracket")
+                )
+            ) else (
+                break
             )
         )
-        arr
-    )
-    
-    parseValue := method(token,
-        if(token at(0) == "\"", 
-            token slice(1, -1)
-        ) elseif(token == "true",
-            true
-        ) elseif(token == "false",
-            false
-        ) elseif(token == "null",
-            nil
-        ) elseif(token contains("."),
-            token asNumber
-        ) elseif(token isNumeric,
-            token asNumber
-        ) elseif(token at(0) == "{",
-            parseObject(token slice(1, -1))
-        ) elseif(token at(0) == "[",
-            parseArray(token slice(1, -1))
-        ) else(
-            Exception raise("Invalid value: " .. token)
-        )
-    )
-    
-    tokenize := method(str,
-        tokens := List clone
-        i := 0
-        current := ""
-        inString := false
-        bracketDepth := 0
-        braceDepth := 0
         
+        return result
+    )
+    
+    parseString := method(jsonString,
+        content := jsonString exSlice(1, -1)
+        // Simple unescaping - would need full implementation for production
+        content replaceSeq("\\\"", "\"") replaceSeq("\\\\", "\\")
+    )
+    
+    findValueEnd := method(str, startIndex,
+        i := startIndex
         while(i < str size,
             c := str at(i)
             
-            if(c == "\"" and (i == 0 or str at(i-1) != "\\"),
-                inString = inString not
-                current = current .. c
-            ) elseif(inString,
-                current = current .. c
-            ) elseif(c isSpace,
-                if(current isEmpty not,
-                    tokens append(current)
-                    current = ""
-                )
-            ) elseif(c == "{" or c == "[",
-                if(current isEmpty not,
-                    tokens append(current)
-                    current = ""
-                )
-                if(c == "{", braceDepth = braceDepth + 1)
-                if(c == "[", bracketDepth = bracketDepth + 1)
-                current = current .. c
-            ) elseif(c == "}" or c == "]",
-                if(current isEmpty not,
-                    tokens append(current)
-                    current = ""
-                )
-                if(c == "}", braceDepth = braceDepth - 1)
-                if(c == "]", bracketDepth = bracketDepth - 1)
-                current = current .. c
-            ) elseif(c == ":" or c == ",",
-                if(current isEmpty not,
-                    tokens append(current)
-                    current = ""
-                )
-                tokens append(c asCharacter)
-            ) else(
-                current = current .. c
+            if(c == ' ' or c == '\t' or c == '\n' or c == '\r',
+                i = i + 1
+                continue
             )
             
-            i = i + 1
+            if(c == '"',
+                endQuote := str findSeq("\"", i + 1)
+                if(endQuote == nil,
+                    Exception raise("Unterminated string")
+                )
+                return endQuote + 1
+            )
+            
+            if(c == '{' or c == '[',
+                depth := 1
+                j := i + 1
+                while(j < str size,
+                    ch := str at(j)
+                    if(ch == '{' or ch == '[',
+                        depth = depth + 1
+                    )
+                    if(ch == '}' or ch == ']',
+                        depth = depth - 1
+                        if(depth == 0,
+                            return j + 1
+                        )
+                    )
+                    j = j + 1
+                )
+                Exception raise("Unterminated object or array")
+            )
+            
+            // For literals and numbers
+            j := i
+            while(j < str size,
+                ch := str at(j)
+                if(ch == ',' or ch == '}' or ch == ']' or ch == ' ',
+                    return j
+                )
+                j = j + 1
+            )
+            return str size
         )
         
-        if(current isEmpty not,
-            tokens append(current)
-        )
-        
-        tokens
+        return str size
     )
     
-    stringify := method(obj, indent := 0,
-        if(obj isNil, return "null")
-        if(obj isKindOf(Sequence), return "\"" .. obj .. "\"")
-        if(obj isKindOf(Number), return obj asString)
-        if(obj isKindOf(True), return "true")
-        if(obj isKindOf(False), return "false")
-        
+    prettyPrint := method(obj, indent := 0,
         if(obj isKindOf(Map),
             if(obj isEmpty, return "{}")
             
             result := "{\n"
-            spaces := "  " repeated(indent + 1)
-            
-            first := true
             obj foreach(key, value,
-                if(first not, result = result .. ",\n")
-                first = false
-                
-                result = result .. spaces .. "\"" .. key .. "\": " .. stringify(value, indent + 1)
+                result = result .. ("  " repeated(indent + 1)) .. "\"" .. key .. "\": " .. prettyPrint(value, indent + 1) .. ",\n"
             )
-            
-            result = result .. "\n" .. "  " repeated(indent) .. "}"
+            result = result exSlice(0, -2) .. "\n" .. ("  " repeated(indent)) .. "}"
             return result
         )
         
@@ -169,35 +189,37 @@ JsonParser := Object clone do(
             if(obj isEmpty, return "[]")
             
             result := "[\n"
-            spaces := "  " repeated(indent + 1)
-            
-            first := true
             obj foreach(value,
-                if(first not, result = result .. ",\n")
-                first = false
-                
-                result = result .. spaces .. stringify(value, indent + 1)
+                result = result .. ("  " repeated(indent + 1)) .. prettyPrint(value, indent + 1) .. ",\n"
             )
-            
-            result = result .. "\n" .. "  " repeated(indent) .. "]"
+            result = result exSlice(0, -2) .. "\n" .. ("  " repeated(indent)) .. "]"
             return result
         )
         
-        Exception raise("Unsupported type for JSON serialization")
+        if(obj isKindOf(Sequence),
+            return "\"" .. obj .. "\""
+        )
+        
+        if(obj isNil,
+            return "null"
+        )
+        
+        return obj asString
     )
 )
 
 // Example usage
 if(isLaunchScript,
-    jsonString := "{\"name\": \"John\", \"age\": 30, \"active\": true, \"tags\": [\"developer\", \"io\"]}"
+    jsonString := "{\"name\": \"John\", \"age\": 30, \"hobbies\": [\"reading\", \"coding\"]}"
     
     parser := JsonParser clone
     parsed := parser parse(jsonString)
     
     "Parsed object:" println
-    parsed asJson println
+    parsed prettyPrint println
     
-    "\nPretty printed:" println
-    pretty := parser stringify(parsed)
-    pretty println
+    "Accessing values:" println
+    ("Name: " .. (parsed at("name"))) println
+    ("Age: " .. (parsed at("age"))) println
+    ("First hobby: " .. (parsed at("hobbies") at(0))) println
 )
