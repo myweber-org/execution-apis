@@ -2,29 +2,64 @@
 #!/usr/bin/env io
 
 Url := Object clone do(
-    fetchTitle := method(url,
+    fetch := method(url,
         request := URL with(url) fetch
-        if(request isError,
-            return "Error fetching URL: #{url}" interpolate
+        if(request isError, return nil)
+        return request
+    )
+)
+
+HtmlParser := Object clone do(
+    extractLinks := method(html,
+        links := List clone
+        html findSeqIter("href=\"", 
+            block(startIndex, endIndex,
+                endQuote := html findSeq("\"", startIndex + 6)
+                if(endQuote, 
+                    link := html slice(startIndex + 6, endQuote)
+                    links append(link)
+                )
+            )
         )
-        html := request asString
-        titleStart := html findSeq("<title>")
-        titleEnd := html findSeq("</title>")
-        if(titleStart and titleEnd,
-            title := html slice(titleStart + 7, titleEnd)
-            return title strip
-        ,
-            return "No title found for URL: #{url}" interpolate
+        return links
+    )
+    
+    extractText := method(html,
+        text := html asMutable
+        text replaceSeq("<[^>]*>", "")
+        text replaceSeq("\\s+", " ")
+        return text strip
+    )
+)
+
+Crawler := Object clone do(
+    visitedUrls := Map clone
+    
+    crawl := method(url, depth,
+        if(depth <= 0 or visitedUrls hasKey(url), return)
+        
+        visitedUrls atPut(url, true)
+        
+        content := Url fetch(url)
+        if(content isNil, return)
+        
+        parser := HtmlParser clone
+        links := parser extractLinks(content)
+        text := parser extractText(content)
+        
+        writeln("URL: ", url)
+        writeln("Title: ", text slice(0, 100), "...")
+        writeln("Found ", links size, " links")
+        writeln("---")
+        
+        links foreach(link,
+            if(link beginsWithSeq("http"),
+                Crawler crawl(link, depth - 1)
+            )
         )
     )
 )
 
 if(isLaunchScript,
-    if(System args size < 2,
-        "Usage: #{System args at(0)} <url>" interpolate println
-        System exit(1)
-    )
-    url := System args at(1)
-    title := Url fetchTitle(url)
-    title println
+    Crawler crawl("http://example.com", 2)
 )
