@@ -59,3 +59,25 @@ converter celsiusToKelvin(0) println
 
 "Using convert method - 20°C to Kelvin: " print
 converter convert(20, "C", "K") println
+CelsiusToFahrenheit := method(celsius, celsius * 9 / 5 + 32)
+CelsiusToKelvin := method(celsius, celsius + 273.15)
+
+TemperatureConverter := Object clone do(
+    convert := method(value, unit,
+        if(unit == "CtoF", return CelsiusToFahrenheit(value))
+        if(unit == "CtoK", return CelsiusToKelvin(value))
+        Exception raise("Unsupported conversion: " .. unit)
+    )
+    
+    displayConversions := method(celsiusValue,
+        fahrenheit := CelsiusToFahrenheit(celsiusValue)
+        kelvin := CelsiusToKelvin(celsiusValue)
+        writeln(celsiusValue, "°C = ", fahrenheit, "°F = ", kelvin, "K")
+    )
+)
+
+// Example usage
+converter := TemperatureConverter clone
+converter displayConversions(25)
+result := converter convert(100, "CtoF")
+writeln("100°C in Fahrenheit: ", result)
