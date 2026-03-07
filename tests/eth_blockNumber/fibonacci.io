@@ -4,45 +4,11 @@ fibonacci := method(n,
     memo atPut(0, 0)
     memo atPut(1, 1)
     
-    fib := method(n,
-        if(memo hasKey(n),
-            memo at(n),
-            result := fib(n-1) + fib(n-2)
-            memo atPut(n, result)
-            result
-        )
-    )
-    
-    fib(n)
-)
-
-"Fibonacci sequence:" println
-for(i, 0, 10, fibonacci(i) println)
-fibonacci := method(n,
-    if(n <= 1, return n)
-    return fibonacci(n - 1) + fibonacci(n - 2)
-)
-
-for(i, 0, 10,
-    fibonacci(i) println
-)
-fibonacci := method(n,
-    if(n <= 1, n, fibonacci(n - 1) + fibonacci(n - 2))
-)
-
-for(i, 0, 10,
-    fibonacci(i) println
-)
-fibonacci := method(n,
-    cache := Map clone
-    cache atPut(0, 0)
-    cache atPut(1, 1)
-    
     fib := method(x,
-        if(cache hasKey(x),
-            cache at(x),
+        if(memo hasKey(x), 
+            memo at(x),
             result := fib(x-1) + fib(x-2)
-            cache atPut(x, result)
+            memo atPut(x, result)
             result
         )
     )
@@ -50,5 +16,4 @@ fibonacci := method(n,
     fib(n)
 )
 
-"Fibonacci sequence:" println
-for(i, 0, 10, fibonacci(i) println)
+"Fibonacci of 10: #{fibonacci(10)}" interpolate println
