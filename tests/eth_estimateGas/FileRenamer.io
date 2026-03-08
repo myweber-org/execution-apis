@@ -1,74 +1,45 @@
 
 FileRenamer := Object clone do(
-    renameFiles := method(directory, prefix, startNumber,
-        files := Directory with(directory) files
-        files sortBy(createdAt)
+    renameWithTimestamp := method(path,
+        if(File with(path) exists not,
+            Exception raise("File not found: #{path}" interpolate)
+        )
         
-        counter := startNumber
-        files foreach(file,
-            extension := if(file name containsSeq("."), 
-                "." .. (file name split(".") last), 
-                ""
-            )
-            newName := prefix .. counter .. extension
-            oldPath := directory .. "/" .. file name
-            newPath := directory .. "/" .. newName
-            
-            if(File clone with(oldPath) exists,
-                File clone with(oldPath) renameTo(newPath)
-                write("Renamed: ", oldPath, " -> ", newName, "\n")
-                counter = counter + 1
+        originalFile := File with(path)
+        timestamp := Date clone now asString("%Y%m%d_%H%M%S")
+        extension := if(originalFile name containsSeq("."), 
+            "." .. originalFile name split(".") last, 
+            ""
+        )
+        baseName := originalFile name beforeSeq(extension)
+        newName := "#{timestamp}_#{baseName}#{extension}" interpolate
+        newPath := originalFile parentPath .. "/" .. newName
+        
+        originalFile renameTo(newPath)
+        writeln("Renamed: #{path} -> #{newName}" interpolate)
+        return newPath
+    )
+    
+    renameMultiple := method(paths,
+        results := List clone
+        paths foreach(path,
+            try(
+                newPath := renameWithTimestamp(path)
+                results append(newPath)
+            ) catch(Exception,
+                writeln("Error processing #{path}: #{Exception description}" interpolate)
             )
         )
-        write("Total files renamed: ", counter - startNumber, "\n")
+        return results
     )
 )
 
 if(isLaunchScript,
-    if(System args size >= 3,
-        directory := System args at(1)
-        prefix := System args at(2)
-        startNumber := if(System args size >= 4, 
-            System args at(3) asNumber, 
-            1
-        )
-        
-        if(Directory with(directory) exists,
-            FileRenamer renameFiles(directory, prefix, startNumber)
-        ,
-            write("Directory not found: ", directory, "\n")
-        )
-    ,
-        write("Usage: io FileRenamer.io <directory> <prefix> [startNumber]\n")
+    args := System args slice(1)
+    if(args isEmpty,
+        writeln("Usage: io FileRenamer.io <file1> [file2 ...]")
+        System exit(1)
     )
-)
-FileRenamer := Object clone do(
-    renameFiles := method(directoryPath, prefix,
-        files := Directory with(directoryPath) files
-        files sortBy(createdAt)
-        counter := 1
-        files foreach(file,
-            extension := if(file name containsSeq("."), 
-                "." .. file name split(".") last, 
-                ""
-            )
-            newName := prefix .. counter asString(100) .. extension
-            oldPath := directoryPath .. "/" .. file name
-            newPath := directoryPath .. "/" .. newName
-            if(oldPath != newPath,
-                file rename(newPath)
-                writeln("Renamed: ", file name, " -> ", newName)
-            )
-            counter = counter + 1
-        )
-        writeln("Renaming complete. Processed ", counter - 1, " files.")
-    )
-)
-
-if(isLaunchScript,
-    if(System args size == 3,
-        FileRenamer renameFiles(System args at(1), System args at(2))
-    ,
-        writeln("Usage: io FileRenamer.io <directory> <prefix>")
-    )
+    
+    FileRenamer renameMultiple(args)
 )
