@@ -302,3 +302,154 @@ JsonParser := Object clone do(
         Exception raise("Unsupported type for JSON serialization")
     )
 )
+JsonParser := Object clone do(
+    parse := method(jsonString,
+        if(jsonString isNil or jsonString isEmpty, 
+            Exception raise("Empty JSON string")
+        )
+        
+        // Remove whitespace
+        trimmed := jsonString strip
+        
+        // Handle different JSON types
+        if(trimmed beginsWithSeq("\""), 
+            return self parseString(trimmed)
+        )
+        if(trimmed beginsWithSeq("{"),
+            return self parseObject(trimmed)
+        )
+        if(trimmed beginsWithSeq("["),
+            return self parseArray(trimmed)
+        )
+        if(trimmed asLowercase == "null",
+            return nil
+        )
+        if(trimmed asLowercase == "true",
+            return true
+        )
+        if(trimmed asLowercase == "false",
+            return false
+        )
+        
+        // Try parsing as number
+        self parseNumber(trimmed)
+    )
+    
+    parseString := method(str,
+        // Remove quotes and unescape characters
+        content := str exSlice(1, -1)
+        content replaceSeq("\\\"", "\"") replaceSeq("\\\\", "\\")
+    )
+    
+    parseObject := method(str,
+        obj := Map clone
+        content := str exSlice(1, -1) strip
+        
+        if(content isEmpty, return obj)
+        
+        pairs := content split(",")
+        pairs foreach(pair,
+            pair := pair strip
+            colonIndex := pair findSeq(":")
+            if(colonIndex isNil,
+                Exception raise("Invalid object pair: " .. pair)
+            )
+            
+            key := pair exSlice(0, colonIndex) strip
+            value := pair exSlice(colonIndex + 1) strip
+            
+            if(not key beginsWithSeq("\""),
+                Exception raise("Object key must be string: " .. key)
+            )
+            
+            parsedKey := self parseString(key)
+            parsedValue := self parse(value)
+            
+            obj atPut(parsedKey, parsedValue)
+        )
+        
+        obj
+    )
+    
+    parseArray := method(str,
+        arr := List clone
+        content := str exSlice(1, -1) strip
+        
+        if(content isEmpty, return arr)
+        
+        elements := content split(",")
+        elements foreach(element,
+            arr append(self parse(element strip))
+        )
+        
+        arr
+    )
+    
+    parseNumber := method(str,
+        // Try integer first
+        intValue := str asNumber
+        if(intValue isNan not, return intValue)
+        
+        // Try float
+        floatValue := str asFloat
+        if(floatValue isNan not, return floatValue)
+        
+        Exception raise("Invalid number: " .. str)
+    )
+    
+    prettyPrint := method(parsed, indentLevel := 0,
+        indent := "  " repeated(indentLevel)
+        
+        if(parsed isNil, return "null")
+        if(parsed type == "Boolean", return parsed asString)
+        if(parsed type == "Number", return parsed asString)
+        if(parsed type == "Sequence", return "\"" .. parsed .. "\"")
+        
+        if(parsed type == "List",
+            if(parsed isEmpty, return "[]")
+            
+            result := "[\n"
+            parsed foreach(i, value,
+                result = result .. indent .. "  " .. self prettyPrint(value, indentLevel + 1)
+                if(i < parsed size - 1, result = result .. ",")
+                result = result .. "\n"
+            )
+            result = result .. indent .. "]"
+            return result
+        )
+        
+        if(parsed type == "Map",
+            if(parsed isEmpty, return "{}")
+            
+            result := "{\n"
+            keys := parsed keys
+            keys foreach(i, key,
+                result = result .. indent .. "  \"" .. key .. "\": " .. 
+                        self prettyPrint(parsed at(key), indentLevel + 1)
+                if(i < keys size - 1, result = result .. ",")
+                result = result .. "\n"
+            )
+            result = result .. indent .. "}"
+            return result
+        )
+        
+        parsed asString
+    )
+)
+
+// Example usage
+if(isLaunchScript,
+    jsonString := "{\"name\": \"John\", \"age\": 30, \"hobbies\": [\"reading\", \"coding\"]}"
+    
+    parser := JsonParser clone
+    parsed := parser parse(jsonString)
+    
+    "Original JSON:" println
+    jsonString println
+    
+    "\nParsed structure:" println
+    parsed asString println
+    
+    "\nPretty printed:" println
+    parser prettyPrint(parsed) println
+)
