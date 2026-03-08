@@ -4,16 +4,17 @@ fibonacci := method(n,
     memo atPut(0, 0)
     memo atPut(1, 1)
     
-    fib := method(i,
-        if(memo hasKey(i), 
-            memo at(i),
-            result := fib(i-1) + fib(i-2)
-            memo atPut(i, result)
-            result
-        )
+    fib := method(n,
+        if(memo hasKey(n), return memo at(n))
+        result := fib(n-1) + fib(n-2)
+        memo atPut(n, result)
+        result
     )
     
     fib(n)
 )
 
-for(i, 0, 20, fibonacci(i) println)
+"Fibonacci sequence:" println
+for(i, 0, 10,
+    fibonacci(i) println
+)
