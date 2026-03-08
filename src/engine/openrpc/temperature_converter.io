@@ -110,3 +110,31 @@ do(
     fahrenheit := CelsiusToFahrenheit(input)
     ("Fahrenheit: " .. fahrenheit) println
 )
+Celsius := Object clone do(
+    toFahrenheit := method(self * 9 / 5 + 32)
+    toKelvin := method(self + 273.15)
+)
+
+TemperatureConverter := Object clone do(
+    convertCelsius := method(celsiusValue,
+        result := Map clone
+        result atPut("celsius", celsiusValue)
+        result atPut("fahrenheit", celsiusValue toFahrenheit)
+        result atPut("kelvin", celsiusValue toKelvin)
+        result
+    )
+    
+    printConversions := method(celsiusValue,
+        conversions := self convertCelsius(celsiusValue)
+        writeln("Temperature Conversions:")
+        conversions foreach(key, value,
+            writeln(key, ": ", value)
+        )
+    )
+)
+
+// Example usage
+if(isLaunchScript,
+    converter := TemperatureConverter clone
+    converter printConversions(25)
+)
