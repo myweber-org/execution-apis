@@ -43,3 +43,39 @@ if(isLaunchScript,
     
     FileRenamer renameMultiple(args)
 )
+FileRenamer := Object clone do(
+    rename := method(oldName, newName,
+        if(File with(oldName) exists,
+            File with(oldName) renameTo(newName)
+            writeln("Renamed '", oldName, "' to '", newName, "'")
+        ,
+            writeln("Error: File '", oldName, "' not found")
+        )
+    )
+    
+    interactiveRename := method(
+        write("Enter current filename: ")
+        oldName := File standardInput readLine strip
+        
+        if(File with(oldName) exists not,
+            writeln("File '", oldName, "' does not exist")
+            return
+        )
+        
+        write("Enter new filename: ")
+        newName := File standardInput readLine strip
+        
+        if(File with(newName) exists,
+            writeln("Warning: '", newName, "' already exists")
+            write("Overwrite? (y/N): ")
+            response := File standardInput readLine strip
+            if(response asLowercase != "y", return)
+        )
+        
+        rename(oldName, newName)
+    )
+)
+
+if(isLaunchScript,
+    FileRenamer interactiveRename()
+)
