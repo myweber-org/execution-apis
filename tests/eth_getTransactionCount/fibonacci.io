@@ -4,64 +4,6 @@ fibonacci := method(n,
     memo atPut(0, 0)
     memo atPut(1, 1)
     
-    fib := method(n,
-        if(memo hasKey(n),
-            memo at(n),
-            result := fib(n-1) + fib(n-2)
-            memo atPut(n, result)
-            result
-        )
-    )
-    
-    fib(n)
-)
-
-"Fibonacci sequence:" println
-for(i, 0, 10, fibonacci(i) println)
-fib := method(n,
-    memo := Map clone
-    memo atPut(0, 0)
-    memo atPut(1, 1)
-    
-    fibRec := method(k,
-        if(memo hasKey(k), return memo at(k))
-        result := fibRec(k-1) + fibRec(k-2)
-        memo atPut(k, result)
-        result
-    )
-    
-    fibRec(n)
-)
-
-fib(10) println
-fibonacci := method(n,
-    memo := Map clone
-    memo atPut(0, 0)
-    memo atPut(1, 1)
-    
-    fib := method(i,
-        if(memo hasKey(i), 
-            return memo at(i)
-        )
-        result := fib(i-1) + fib(i-2)
-        memo atPut(i, result)
-        result
-    )
-    
-    fib(n)
-)
-
-"Fibonacci sequence:" println
-for(i, 0, 10,
-    fibonacci(i) print
-    " " print
-)
-"" println
-fibonacci := method(n,
-    memo := Map clone
-    memo atPut(0, 0)
-    memo atPut(1, 1)
-    
     fib := method(x,
         if(memo hasKey(x),
             memo at(x),
@@ -74,27 +16,9 @@ fibonacci := method(n,
     fib(n)
 )
 
-"Fibonacci of 10: " print
-fibonacci(10) println
-
-"First 15 Fibonacci numbers:" println
-Range 0 to(14) map(i, fibonacci(i)) join(", ") println
-fibonacci := method(n,
-    memo := Map clone
-    memo atPut(0, 0)
-    memo atPut(1, 1)
-    
-    fib := method(n,
-        if(memo hasKey(n),
-            memo at(n),
-            result := fib(n-1) + fib(n-2)
-            memo atPut(n, result)
-            result
-        )
-    )
-    
-    fib(n)
+"Fibonacci sequence first 10 numbers:" println
+for(i, 0, 9,
+    fibonacci(i) print
+    " " print
 )
-
-"Fibonacci sequence:" println
-for(i, 0, 10, fibonacci(i) println)
+"" println
