@@ -53,3 +53,24 @@ fibonacci := method(n,
 )
 
 for(i, 0, 10, write(fibonacci(i), " "))
+fib := method(n,
+    cache := Map clone
+    cache atPut(0, 0)
+    cache atPut(1, 1)
+    
+    fibHelper := method(k,
+        if(cache hasKey(k), return cache at(k))
+        result := fibHelper(k-1) + fibHelper(k-2)
+        cache atPut(k, result)
+        result
+    )
+    
+    fibHelper(n)
+)
+
+"First 10 Fibonacci numbers:" println
+for(i, 0, 9,
+    fib(i) print
+    " " print
+)
+"" println
