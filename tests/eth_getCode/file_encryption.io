@@ -106,3 +106,82 @@ FileEncryptionTest := Object clone do(
 if(isLaunchScript,
     FileEncryptionTest run
 )
+OpenSSL do(
+    encrypt := method(data, password,
+        salt := OpenSSL randomBytes(8)
+        keyIV := OpenSSL EVP_BytesToKey(
+            OpenSSL EVP_aes_256_cbc,
+            OpenSSL EVP_sha256,
+            salt,
+            password,
+            1,
+            32,
+            16
+        )
+        
+        ctx := OpenSSL EVP_CIPHER_CTX_new
+        OpenSSL EVP_EncryptInit_ex(ctx, OpenSSL EVP_aes_256_cbc, nil, keyIV slice(0, 32), keyIV slice(32, 48))
+        
+        out := List clone
+        out append("Salted__")
+        out append(salt)
+        
+        outLen := 0
+        cipherText := OpenSSL EVP_CIPHER_CTX_newBuffer(data size + 32)
+        OpenSSL EVP_EncryptUpdate(ctx, cipherText, outLen, data, data size)
+        totalLen := outLen
+        
+        OpenSSL EVP_EncryptFinal_ex(ctx, cipherText slice(outLen), outLen)
+        totalLen = totalLen + outLen
+        
+        out append(cipherText slice(0, totalLen))
+        OpenSSL EVP_CIPHER_CTX_free(ctx)
+        out join
+    )
+    
+    decrypt := method(encryptedData, password,
+        if(encryptedData beginsWith("Salted__") not,
+            Exception raise("Invalid encrypted data format")
+        )
+        
+        salt := encryptedData slice(8, 16)
+        cipherText := encryptedData slice(16)
+        
+        keyIV := OpenSSL EVP_BytesToKey(
+            OpenSSL EVP_aes_256_cbc,
+            OpenSSL EVP_sha256,
+            salt,
+            password,
+            1,
+            32,
+            16
+        )
+        
+        ctx := OpenSSL EVP_CIPHER_CTX_new
+        OpenSSL EVP_DecryptInit_ex(ctx, OpenSSL EVP_aes_256_cbc, nil, keyIV slice(0, 32), keyIV slice(32, 48))
+        
+        outLen := 0
+        plainText := OpenSSL EVP_CIPHER_CTX_newBuffer(cipherText size)
+        OpenSSL EVP_DecryptUpdate(ctx, plainText, outLen, cipherText, cipherText size)
+        totalLen := outLen
+        
+        OpenSSL EVP_DecryptFinal_ex(ctx, plainText slice(outLen), outLen)
+        totalLen = totalLen + outLen
+        
+        result := plainText slice(0, totalLen)
+        OpenSSL EVP_CIPHER_CTX_free(ctx)
+        result
+    )
+)
+
+File encryptToFile := method(outputPath, password,
+    content := self read
+    encrypted := OpenSSL encrypt(content, password)
+    File with(outputPath) openForUpdating write(encrypted) close
+    self
+)
+
+File decryptFromFile := method(inputPath, password,
+    encrypted := File with(inputPath) read
+    OpenSSL decrypt(encrypted, password)
+)
