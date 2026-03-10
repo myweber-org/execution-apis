@@ -52,3 +52,42 @@ WebCrawler := Object clone do(
 crawler := WebCrawler clone
 urls := crawler crawl("http://example.com", 2)
 urls foreach(url, writeln("Found: ", url))
+#!/usr/bin/env io
+
+Url := Object clone do(
+    fetch := method(url,
+        socket := Socket clone setHost(url host, 80)
+        socket connect
+        socket write("GET #{url path} HTTP/1.0\r\nHost: #{url host}\r\n\r\n")
+        response := socket readBuffer
+        socket close
+        response
+    )
+)
+
+HtmlParser := Object clone do(
+    extractLinks := method(html,
+        links := List clone
+        html split("\n") foreach(line,
+            if(line containsSeq("href="),
+                start := line findSeq("href=") + 6
+                end := line findSeq("\"", start)
+                if(end, links append(line slice(start, end)))
+            )
+        )
+        links
+    )
+)
+
+crawler := Object clone do(
+    crawl := method(urlString,
+        url := URL with(urlString)
+        html := Url fetch(url)
+        links := HtmlParser extractLinks(html)
+        links foreach(link, link println)
+    )
+)
+
+if(System args size > 0,
+    crawler crawl(System args at(0))
+)
