@@ -58,4 +58,19 @@ server run
 waitForKey := method(
     "Press Enter to stop server..." println
     stdin readLine
+)#!/usr/bin/env io
+
+WebServer := Object clone do(
+    handleRequest := method(request, response,
+        response setStatus(200)
+        response setHeader("Content-Type", "text/plain")
+        response write("Hello, World from Io!")
+        response close
+    )
 )
+
+server := Server clone setPort(8080) setHandler(WebServer)
+server start
+writeln("Server running at http://localhost:8080/")
+
+while(true, server handleRequest)
