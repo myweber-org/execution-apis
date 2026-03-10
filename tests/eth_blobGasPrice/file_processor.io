@@ -261,3 +261,30 @@ FileProcessor := Object clone do(
 // content := processor readFile("test.txt")
 // processor appendToFile("test.txt", "\nAppended text")
 // processor copyFile("test.txt", "test_copy.txt")
+FileProcessor := Object clone do(
+    countLines := method(filePath,
+        file := File with(filePath) openForReading
+        lines := 0
+        file foreachLine(lines = lines + 1)
+        file close
+        lines
+    )
+    
+    countWords := method(filePath,
+        file := File with(filePath) openForReading
+        content := file contents
+        file close
+        words := content split(" ") size
+        words
+    )
+    
+    processFile := method(filePath,
+        lines := self countLines(filePath)
+        words := self countWords(filePath)
+        Map clone atPut("lines", lines) atPut("words", words)
+    )
+)
+
+processor := FileProcessor clone
+result := processor processFile("sample.txt")
+("File has " .. (result at("lines")) .. " lines and " .. (result at("words")) .. " words") println
