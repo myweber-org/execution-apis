@@ -206,3 +206,120 @@ if(isLaunchScript,
     ("Active: " .. (parsed at("active"))) println
     ("Scores: " .. (parsed at("scores"))) println
 )
+JsonParser := Object clone do(
+    parse := method(jsonString,
+        if(jsonString isNil or jsonString isEmpty, 
+            Exception raise("Empty JSON string")
+        )
+        
+        // Remove whitespace
+        cleanString := jsonString strip
+        
+        // Basic validation
+        if(cleanString at(0) != "{" and cleanString at(0) != "[",
+            Exception raise("Invalid JSON: must start with { or [")
+        )
+        
+        // Simple parsing logic (simplified for example)
+        if(cleanString at(0) == "{",
+            self parseObject(cleanString)
+        ,
+            self parseArray(cleanString)
+        )
+    )
+    
+    parseObject := method(str,
+        result := Map clone
+        // Simplified parsing - real implementation would be more complex
+        content := str exSlice(1, -1)
+        if(content isEmpty, return result)
+        
+        pairs := content split(",")
+        pairs foreach(pair,
+            keyValue := pair split(":")
+            if(keyValue size != 2, 
+                Exception raise("Invalid key-value pair: #{pair}" interpolate)
+            )
+            
+            key := keyValue at(0) strip
+            value := keyValue at(1) strip
+            
+            // Remove quotes from key
+            if(key at(0) == "\"" and key at(-1) == "\"",
+                key = key exSlice(1, -1)
+            )
+            
+            result atPut(key, self parseValue(value))
+        )
+        
+        result
+    )
+    
+    parseArray := method(str,
+        result := List clone
+        content := str exSlice(1, -1)
+        if(content isEmpty, return result)
+        
+        items := content split(",")
+        items foreach(item,
+            result append(self parseValue(item strip))
+        )
+        
+        result
+    )
+    
+    parseValue := method(valueStr,
+        if(valueStr at(0) == "\"" and valueStr at(-1) == "\"",
+            return valueStr exSlice(1, -1)
+        )
+        
+        if(valueStr == "true", return true)
+        if(valueStr == "false", return false)
+        if(valueStr == "null", return nil)
+        
+        // Try to parse as number
+        if(valueStr contains("."),
+            return valueStr asNumber
+        ,
+            return valueStr asNumber
+        )
+    )
+    
+    prettyPrint := method(obj, indent := 0,
+        if(obj isKindOf(Map),
+            "{\n" print
+            obj keys foreach(i, key,
+                "  " repeated(indent + 1) print
+                "\"#{key}\": " interpolate print
+                self prettyPrint(obj at(key), indent + 1)
+                if(i < obj size - 1, ", " print)
+                "\n" print
+            )
+            "  " repeated(indent) print
+            "}" print
+        ) elseif(obj isKindOf(List),
+            "[\n" print
+            obj foreach(i, item,
+                "  " repeated(indent + 1) print
+                self prettyPrint(item, indent + 1)
+                if(i < obj size - 1, ", " print)
+                "\n" print
+            )
+            "  " repeated(indent) print
+            "]" print
+        ) elseif(obj isKindOf(Sequence),
+            "\"#{obj}\"" interpolate print
+        ) elseif(obj isNil,
+            "null" print
+        ) else(
+            obj asString print
+        )
+    )
+)
+
+// Example usage (commented out for library)
+/*
+parser := JsonParser clone
+jsonData := parser parse("{\"name\": \"John\", \"age\": 30, \"active\": true}")
+parser prettyPrint(jsonData)
+*/
