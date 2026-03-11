@@ -32,3 +32,27 @@ encrypted := OpenSSL encrypt(data, key)
 decrypted := OpenSSL decrypt(encrypted, key)
 decrypted println // Should output original data
 */
+AES := Object clone do(
+    encrypt := method(data, key,
+        iv := Random bytes(16)
+        cipher := OpenSSL Cipher with("aes-256-cbc")
+        cipher setEncryptKey(key) setIV(iv)
+        encrypted := cipher update(data) .. cipher final
+        iv .. encrypted
+    )
+
+    decrypt := method(data, key,
+        iv := data slice(0, 16)
+        ciphertext := data slice(16)
+        cipher := OpenSSL Cipher with("aes-256-cbc")
+        cipher setDecryptKey(key) setIV(iv)
+        cipher update(ciphertext) .. cipher final
+    )
+)
+
+// Example usage (commented out in actual file):
+// key := "32_byte_key_for_aes_256_cbc_encryption"
+// original := "Secret data to protect"
+// encrypted := AES encrypt(original, key)
+// decrypted := AES decrypt(encrypted, key)
+// decrypted println // Should print: Secret data to protect
