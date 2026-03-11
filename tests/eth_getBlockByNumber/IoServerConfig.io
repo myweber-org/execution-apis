@@ -48,4 +48,23 @@ ServerConfig := Object clone do(
         jsonString = jsonString .. "}"
         File with(configPath) openForUpdating write(jsonString) close
     )
+)WebServer := Object clone do(
+    port := 8080
+    host := "localhost"
+    maxConnections := 100
+    
+    configure := method(newPort, newHost,
+        if(newPort, port = newPort)
+        if(newHost, host = newHost)
+        self
+    )
+    
+    start := method(
+        "Server starting on #{host}:#{port}" interpolate println
+        "Maximum connections: #{maxConnections}" interpolate println
+        "Server ready to handle requests" println
+    )
 )
+
+config := WebServer clone configure(9000, "0.0.0.0")
+config start
