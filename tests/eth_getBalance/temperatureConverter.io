@@ -23,3 +23,17 @@ TemperatureConverter := Object clone do(
         "#{value}°#{fromUnit} = #{result}°#{toUnit}" interpolate
     )
 )
+Celsius := Object clone
+Celsius toFahrenheit := method(self * 9 / 5 + 32)
+Celsius toKelvin := method(self + 273.15)
+
+TemperatureConverter := Object clone
+TemperatureConverter convert := method(celsiusValue,
+    fahrenheit := celsiusValue toFahrenheit
+    kelvin := celsiusValue toKelvin
+    list(celsiusValue, fahrenheit, kelvin)
+)
+
+// Example usage (commented out in actual utility)
+// result := TemperatureConverter convert(25)
+// result foreach(v, v println)
