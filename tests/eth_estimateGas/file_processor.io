@@ -83,3 +83,42 @@ processor := FileProcessor clone
 result := processor processFile("test.txt")
 if(result isNil not, "Processed content: #{result}" interpolate println)
 processor close
+FileProcessor := Object clone do(
+    read := method(path,
+        file := File with(path)
+        if(file exists,
+            file openForReading contents
+        ,
+            Exception raise("File not found: #{path}" interpolate)
+        )
+    )
+    
+    write := method(path, content,
+        file := File with(path)
+        file openForUpdating truncateToSize(0)
+        file write(content)
+        file close
+        content size
+    )
+    
+    append := method(path, content,
+        file := File with(path)
+        file openForAppending
+        bytesWritten := file write(content)
+        file close
+        bytesWritten
+    )
+    
+    exists := method(path,
+        File with(path) exists
+    )
+    
+    size := method(path,
+        file := File with(path)
+        if(file exists,
+            file size
+        ,
+            Exception raise("File not found: #{path}" interpolate)
+        )
+    )
+)
