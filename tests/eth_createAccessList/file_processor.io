@@ -74,3 +74,43 @@ FileProcessor := Object clone do(
         )
     )
 )
+FileProcessor := Object clone do(
+    readFile := method(path,
+        file := File with(path) openForReading
+        content := file readToEnd
+        file close
+        content
+    )
+
+    writeFile := method(path, content,
+        file := File with(path) openForUpdating
+        file write(content)
+        file close
+    )
+
+    appendToFile := method(path, content,
+        file := File with(path) openForAppending
+        file write(content)
+        file close
+    )
+
+    fileExists := method(path,
+        File exists(path)
+    )
+
+    getFileSize := method(path,
+        file := File with(path) openForReading
+        size := file size
+        file close
+        size
+    )
+)
+
+processor := FileProcessor clone
+if(processor fileExists("test.txt"),
+    content := processor readFile("test.txt")
+    processor writeFile("backup.txt", content)
+    processor appendToFile("log.txt", "File processed at: #{Date clone now asString}\n" interpolate)
+    "Processed file size: #{processor getFileSize(\"test.txt\")} bytes" interpolate println,
+    "File not found" println
+)
