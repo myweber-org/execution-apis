@@ -56,3 +56,52 @@ AES := Object clone do(
 // encrypted := AES encrypt(original, key)
 // decrypted := AES decrypt(encrypted, key)
 // decrypted println // Should print: Secret data to protect
+AES := Object clone do(
+    encrypt := method(data, key,
+        iv := Random bytes(16)
+        cipher := OpenSSL Cipher with("aes-256-cbc")
+        cipher setEncryptKey(key) setIV(iv)
+        encrypted := cipher update(data) .. cipher final
+        iv .. encrypted
+    )
+    
+    decrypt := method(data, key,
+        iv := data slice(0, 16)
+        ciphertext := data slice(16)
+        cipher := OpenSSL Cipher with("aes-256-cbc")
+        cipher setDecryptKey(key) setIV(iv)
+        cipher update(ciphertext) .. cipher final
+    )
+)
+
+File encryptToFile := method(outputPath, key,
+    encrypted := AES encrypt(self contents, key)
+    File with(outputPath) open write(encrypted) close
+)
+
+File decryptFromFile := method(inputPath, key,
+    encrypted := File with(inputPath) open readToEnd
+    AES decrypt(encrypted, key)
+)
+
+if(isLaunchScript,
+    args := System args
+    if(args size < 4,
+        "Usage: #{args at(0)} <encrypt|decrypt> <input> <output> <key>" interpolate println
+        return
+    )
+    
+    action := args at(1)
+    input := args at(2)
+    output := args at(3)
+    key := args at(4)
+    
+    if(action == "encrypt",
+        File with(input) encryptToFile(output, key)
+        "Encrypted #{input} to #{output}" interpolate println
+    ) elseif(action == "decrypt",
+        result := File decryptFromFile(input, key)
+        File with(output) open write(result) close
+        "Decrypted #{input} to #{output}" interpolate println
+    )
+)
