@@ -34,3 +34,14 @@ fibonacci := method(n,
 )
 
 for(i, 0, 20, fibonacci(i) println)
+fibonacci := Object clone
+fibonacci memo := Map clone
+fibonacci generate := method(n,
+    if(n <= 1, return n)
+    if(fibonacci memo hasKey(n), return fibonacci memo at(n))
+    result := fibonacci generate(n - 1) + fibonacci generate(n - 2)
+    fibonacci memo atPut(n, result)
+    result
+)
+
+fibonacci generate(10) println
