@@ -94,3 +94,26 @@ for(i, 0, 9,
     " " print
 )
 "" println
+fibonacci := method(n,
+    cache := Map clone
+    cache atPut(0, 0)
+    cache atPut(1, 1)
+    
+    recursiveFib := method(idx,
+        if(cache hasKey(idx),
+            cache at(idx),
+            result := recursiveFib(idx - 1) + recursiveFib(idx - 2)
+            cache atPut(idx, result)
+            result
+        )
+    )
+    
+    recursiveFib(n)
+)
+
+"Fibonacci sequence first 10 terms:" println
+for(i, 0, 9,
+    fibonacci(i) print
+    if(i < 9, ", " print)
+)
+"" println
