@@ -75,3 +75,9 @@ WebCrawler := Object clone do(
 // Example usage
 crawler := WebCrawler clone
 crawler crawl("http://example.com", 2)
+URL := "https://example.com"
+html := URL fetch asString
+"Fetched #{html size} bytes from #{URL}" println
+
+links := html findRegex("href=\"(http[^\"]+)\"")
+links foreach(i, link, "Link #{i+1}: #{link at(1)}" println)
