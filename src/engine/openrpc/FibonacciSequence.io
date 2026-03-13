@@ -61,3 +61,16 @@ for(i, 0, 9,
     " " print
 )
 "" println
+fib := method(n,
+    if(n <= 1, return n)
+    return fib(n - 1) + fib(n - 2)
+)
+
+printFibonacciSequence := method(limit,
+    for(i, 0, limit,
+        fibValue := fib(i)
+        fibValue println
+    )
+)
+
+printFibonacciSequence(10)
